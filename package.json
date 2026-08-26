@@ -1,0 +1,29 @@
+{
+  "name": "plaza-colon-guia",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Guía de visita de Plaza Colón, Córdoba.",
+  "engines": { "node": ">=24.12.0 <25", "pnpm": ">=11.24.0 <12" },
+  "packageManager": "pnpm@11.24.0",
+  "scripts": {
+    "dev": "astro dev --host 0.0.0.0",
+    "check": "astro check",
+    "build": "astro check && astro build && node scripts/sanitize-worker-output.mjs",
+    "preview": "astro build && wrangler dev --local --main ./dist/_worker.js/index.js --assets ./dist",
+    "deploy": "astro build && wrangler deploy --main ./dist/_worker.js/index.js --assets ./dist"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "14.2.5",
+    "astro": "7.2.7",
+    "tailwindcss": "4.3.3"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.10",
+    "@astrojs/sitemap": "3.7.3",
+    "@cloudflare/workers-types": "5.20260826.1",
+    "@tailwindcss/vite": "4.3.3",
+    "typescript": "6.0.2",
+    "wrangler": "4.126.0"
+  }
+}
