@@ -1,0 +1,19 @@
+---
+/** Design reminder — Herbario de hierro: heritage seal, botanical restraint, and calm editorial navigation. */
+interface Props { locale: 'es' | 'en'; }
+const { locale } = Astro.props;
+const en = locale === 'en';
+const home = en ? '/en/' : '/';
+const nav = en
+  ? [['#history', 'History'], ['#visit', 'Visit'], ['#transport', 'Getting here'], ['#services', 'Services'], ['#nearby', 'Nearby'], ['#faq', 'FAQ']]
+  : [['#historia', 'Historia'], ['#visita', 'Visita'], ['#transporte', 'Cómo llegar'], ['#servicios', 'Servicios'], ['#alrededores', 'Alrededores'], ['#faq', 'Preguntas']];
+---
+<a class="skip-link" href="#content">{en ? 'Skip to content' : 'Saltar al contenido'}</a>
+<header class="site-header site-header-expanded">
+  <a class="brand" href={home} aria-label={en ? 'Plaza Colón home' : 'Inicio Plaza Colón'}>
+    <img src="/favicon.svg" alt="" width="54" height="54" />
+    <span><b>Plaza</b> Colón <i>· Alberdi</i></span>
+  </a>
+  <nav aria-label={en ? 'Main navigation' : 'Navegación principal'}>{nav.map(([href, label]) => <a href={href}>{label}</a>)}</nav>
+  <div class="header-actions"><a class="locale-link" href={en ? '/' : '/en/'} lang={en ? 'es' : 'en'}>{en ? 'ES' : 'EN'}</a><a class="header-map" href="#map">{en ? 'Map' : 'Mapa'} <span aria-hidden="true">↘</span></a></div>
+</header>

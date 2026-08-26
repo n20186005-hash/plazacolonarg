@@ -1,0 +1,16 @@
+---
+/** Design reminder — Footer behaves like an archival colophon, not a promotional conversion block. */
+interface Props { locale: 'es' | 'en'; }
+const { locale } = Astro.props;
+const en = locale === 'en';
+const base = en ? '/en' : '';
+---
+<footer class="site-footer site-footer-expanded">
+  <div class="footer-brand"><img src="/favicon.svg" alt="" width="58" height="58" /><span>Plaza Colón<br /><i>{en ? 'Public-interest guide' : 'Guía de interés público'}</i></span></div>
+  <div class="footer-statement">
+    <p>{en ? 'This is an independent, non-profit visitor information project. It has no affiliation with public authorities, the place manager, or commercial operators.' : 'Este es un proyecto independiente y sin fines de lucro de información para visitantes. No tiene vínculo con autoridades públicas, administradores del lugar ni operadores comerciales.'}</p>
+    <p>{en ? 'Place information is checked against public materials from Municipalidad de Córdoba, Turismo Córdoba and public mobility channels. No business recommendations are included.' : 'La información se contrasta con materiales públicos de la Municipalidad de Córdoba, Turismo Córdoba y canales públicos de movilidad. No incluye recomendaciones comerciales.'}</p>
+    <p>{en ? 'Photographs remain the property of their respective authors or rightsholders. © 2026 Plaza Colón Visitor Guide.' : 'Las fotografías pertenecen a sus respectivos autores o titulares de derechos. © 2026 Guía de visita Plaza Colón.'}</p>
+  </div>
+  <div class="footer-links"><a href={`${base}/privacy-policy/`}>{en ? 'Privacy' : 'Privacidad'}</a><a href={`${base}/terms-of-service/`}>{en ? 'Terms' : 'Términos'}</a><a href={`${base}/cookie-settings/`}>{en ? 'Cookies' : 'Cookies'}</a><a href="#top">{en ? 'Top ↑' : 'Arriba ↑'}</a></div>
+</footer>

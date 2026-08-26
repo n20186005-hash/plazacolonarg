@@ -1,0 +1,84 @@
+---
+/**
+ * Design reminder — Herbario de hierro: airy botanical editorial layout, antique bronze details,
+ * deep ink text, and real Plaza Colón photography as the dominant visual material.
+ */
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  locale?: 'es' | 'en';
+  faqItems?: Array<{ question: string; answer: string }>;
+}
+
+const { title, description, locale = 'es', faqItems = [] } = Astro.props;
+const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
+const isEnglish = locale === 'en';
+const attractionSchema = {
+  '@context': 'https://schema.org',
+  '@type': ['TouristAttraction', 'LocalBusiness'],
+  name: 'Plaza Colón',
+  description: isEnglish ? 'Historic public square in Alberdi with a cast-iron fountain, tree canopy and recreation space.' : 'Plaza histórica de barrio Alberdi con fuente de hierro fundido, arbolado y espacios de recreación.',
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: 'Av. Colón',
+    postalCode: 'X5000EPZ',
+    addressLocality: 'Córdoba',
+    addressRegion: 'Córdoba',
+    addressCountry: 'AR',
+  },
+  geo: { '@type': 'GeoCoordinates', latitude: -31.4092824, longitude: -64.1957511 },
+  areaServed: { '@type': 'City', name: 'Córdoba, Argentina' },
+  openingHours: 'Mo-Su 00:00-23:59',
+  aggregateRating: { '@type': 'AggregateRating', ratingValue: '4.1', reviewCount: '18791', bestRating: '5' },
+  image: '/manus-storage/plaza-colon-fuente-atardecer_114fe14d.jpg',
+  ...(canonical ? { url: canonical } : {}),
+};
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqItems.map(({ question, answer }) => ({ '@type': 'Question', name: question, acceptedAnswer: { '@type': 'Answer', text: answer } })),
+};
+---
+
+<!doctype html>
+<html lang={isEnglish ? 'en' : 'es-AR'}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#17382E" />
+    <meta name="robots" content="index,follow" />
+    {canonical && <link rel="canonical" href={canonical} />}
+    <link rel="icon" type="image/svg+xml" sizes="any" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" sizes="16x16" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" sizes="32x32" href="/favicon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.svg" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {canonical && <meta property="og:url" content={canonical} />}
+    {canonical && <meta property="og:image" content={new URL('/manus-storage/plaza-colon-fuente-atardecer_114fe14d.jpg', Astro.site).href} />}
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>{title}</title>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){window.dataLayer.push(arguments);}
+      const loadAnalytics = () => {
+        if (window.__plazaAnalyticsLoaded || localStorage.getItem('plaza-colon-analytics') !== 'granted') return;
+        window.__plazaAnalyticsLoaded = true;
+        const script = document.createElement('script'); script.async = true; script.src = 'https://www.googletagmanager.com/gtag/js?id=G-HXM22WWPKP'; document.head.appendChild(script);
+        gtag('js', new Date()); gtag('config', 'G-HXM22WWPKP');
+      };
+      loadAnalytics(); window.addEventListener('plaza-consent-updated', loadAnalytics);
+    </script>
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(attractionSchema)}></script>
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(faqSchema)}></script>
+  </head>
+  <body><slot /></body>
+</html>

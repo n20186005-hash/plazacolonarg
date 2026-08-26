@@ -1,0 +1,12 @@
+{
+  "name": "Plaza Colón · Guía de visita",
+  "short_name": "Plaza Colón",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "16x16", "type": "image/svg+xml" },
+    { "src": "/favicon.svg", "sizes": "32x32", "type": "image/svg+xml" },
+    { "src": "/apple-touch-icon.svg", "sizes": "180x180", "type": "image/svg+xml" }
+  ],
+  "theme_color": "#17382E",
+  "background_color": "#F5F0E5",
+  "display": "standalone"
+}
