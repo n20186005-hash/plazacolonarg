@@ -17,9 +17,15 @@ const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : un
 const isEnglish = locale === 'en';
 const attractionSchema = {
   '@context': 'https://schema.org',
-  '@type': ['TouristAttraction', 'LocalBusiness'],
-  name: 'Plaza Colón',
-  description: isEnglish ? 'Historic public square in Alberdi with a cast-iron fountain, tree canopy and recreation space.' : 'Plaza histórica de barrio Alberdi con fuente de hierro fundido, arbolado y espacios de recreación.',
+  '@type': ['TouristAttraction', 'LandmarksOrHistoricalBuildings', 'Place'],
+  name: 'Plaza Colón (Alberdi, Córdoba, Argentina)',
+  alternateName: ['Plaza Colón Córdoba', 'Plaza Colón de Alberdi'],
+  description: isEnglish
+    ? 'Plaza Colón in the Alberdi neighbourhood of Córdoba, Argentina (Av. Colón, X5000EPZ, coordinates -31.4092824, -64.1957511). Public square opened 1888 as Plaza Juárez Celman, renamed 1892. Distinctive Parisian cast-iron two-tier fountain and 1955 Mini Botanical Garden design by architect Carlos David. Not to be confused with the homonymous Plaza de Colón in Madrid (Spain), Plaza Colón in San Juan, Puerto Rico or Plaza Colón in Mar del Plata, Buenos Aires, Argentina.'
+    : 'Plaza Colón en el barrio Alberdi de Córdoba, Argentina (Av. Colón, X5000EPZ, coordenadas -31.4092824, -64.1957511). Plaza pública inaugurada en 1888 como Plaza Juárez Celman y renombrada en 1892. Distintiva fuente parisina de hierro fundido de dos bandejas y diseño de Mini Jardín Botánico de 1955 del arquitecto Carlos David. No confundir con las plazas homónimas de Madrid (España), San Juan (Puerto Rico) ni Mar del Plata (Buenos Aires, Argentina).',
+  disambiguatingDescription: isEnglish
+    ? 'Distinguished internationally by its inland Alberdi neighbourhood setting, Parisian cast-iron fountain and not being a Colón stone monument, giant national-flag plaza or walled-city gateway plaza.'
+    : 'Se distingue internacionalmente por su emplazamiento en el barrio Alberdi del interior urbano, su fuente parisina de hierro fundido y por no ser un monumento pétreo a Colón, una plaza de bandera nacional gigante ni una plaza-puerta de ciudad amurallada.',
   address: {
     '@type': 'PostalAddress',
     streetAddress: 'Av. Colón',
@@ -28,11 +34,26 @@ const attractionSchema = {
     addressRegion: 'Córdoba',
     addressCountry: 'AR',
   },
-  geo: { '@type': 'GeoCoordinates', latitude: -31.4092824, longitude: -64.1957511 },
-  areaServed: { '@type': 'City', name: 'Córdoba, Argentina' },
+  geo: { '@type': 'GeoCoordinates', latitude: -31.4092824, longitude: -64.1957511, elevation: 430 },
+  containedInPlace: [
+    { '@type': 'Neighborhood', name: 'Alberdi, Córdoba' },
+    { '@type': 'City', name: 'Córdoba, Argentina' },
+  ],
+  hasMap: 'https://maps.app.goo.gl/VFVHXX42gPEcgbg76',
+  sameAs: ['https://turismo.cordoba.gob.ar/plaza-colon/'],
   openingHours: 'Mo-Su 00:00-23:59',
   aggregateRating: { '@type': 'AggregateRating', ratingValue: '4.1', reviewCount: '18791', bestRating: '5' },
   image: '/images/plaza-colon-fuente-atardecer.jpg',
+  photo: {
+    '@type': 'Photograph',
+    image: '/images/plaza-colon-fuente-atardecer.jpg',
+    caption: isEnglish ? 'Plaza Colón Córdoba cast-iron fountain at dusk.' : 'Fuente de hierro fundido de Plaza Colón Córdoba al atardecer.',
+  },
+  additionalProperty: [
+    { '@type': 'PropertyValue', name: 'distintivo_arquitectonico', value: 'Fuente parisina de dos bandejas en hierro fundido y cuatro farolas de París.' },
+    { '@type': 'PropertyValue', name: 'nombre_anterior', value: 'Plaza Juárez Celman (1888–1892)' },
+    { '@type': 'PropertyValue', name: 'no_es_homonima', value: isEnglish ? 'Not: Plaza de Colón Madrid, Plaza Colón San Juan PR, Plaza Colón Mar del Plata' : 'No es la Plaza de Colón de Madrid, ni Plaza Colón San Juan PR, ni Plaza Colón Mar del Plata.' },
+  ],
   ...(canonical ? { url: canonical } : {}),
 };
 const faqSchema = {
