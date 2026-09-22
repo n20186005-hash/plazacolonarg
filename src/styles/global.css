@@ -196,6 +196,7 @@ h2 { font-family: var(--serif); font-size: clamp(2.8rem, 5vw, 5.3rem); line-heig
 .map-copy h2 { color: #f8edd9; font-size: clamp(3.2rem, 5vw, 5.6rem); }
 .map-copy h2 em { color: #d9a664; }
 .map-copy p:not(.eyebrow) { color: rgba(255,255,255,.72); margin-bottom: 2rem; }
+.map-pluscode { display: block; font-size: .74rem; letter-spacing: .1em; margin-top: .55rem; opacity: .78; text-transform: uppercase; }
 .map-section iframe { border: 0; height: 100%; min-height: 510px; width: 100%; filter: saturate(.76) contrast(1.05); }
 
 .nearby-section { background: var(--paper-deep); }
@@ -295,6 +296,18 @@ h2 { font-family: var(--serif); font-size: clamp(2.8rem, 5vw, 5.3rem); line-heig
 .weather-day .wp { color: var(--ink-soft); font-size: .66rem; letter-spacing: .03em; margin: .25rem 0 0; }
 .weather-updated { color: var(--ink-soft); font-size: .74rem; font-style: italic; margin: 1.1rem 0 0; }
 .weather-unavailable { background: #efe5d3; color: var(--ink-soft); margin: 3rem auto 0; max-width: 1240px; padding: 1.6rem 2rem; }
+.weather-risk { align-items: flex-start; background: #fbeae7; border: 1px solid #e2a89c; border-left: 4px solid #c0473a; display: flex; gap: 1rem; margin: 3.5rem auto 0; max-width: 1240px; padding: 1.1rem 1.4rem; }
+.weather-risk .wr-badge { font-size: 1.3rem; line-height: 1.4; }
+.weather-risk .wr-title { color: #c0473a; font-family: var(--serif); font-size: 1.1rem; margin: 0 0 .35rem; }
+.weather-risk ul { color: var(--ink-soft); font-size: .92rem; line-height: 1.6; margin: 0; padding-left: 1.1rem; }
+.weather-risk li { margin-top: .25rem; }
+.weather-advice { border-top: 1px solid var(--line); display: grid; gap: 1.3rem; margin-top: 1.8rem; padding-top: 1.6rem; }
+.advice-group { display: grid; gap: .6rem; }
+.ag-title { color: var(--bronze); font-size: .64rem; font-weight: 800; letter-spacing: .12em; margin: 0; text-transform: uppercase; }
+.chips { display: flex; flex-wrap: wrap; gap: .5rem; }
+.chip { background: #f3ecdd; border: 1px solid var(--line); color: var(--ink); font-size: .82rem; line-height: 1.25; padding: .5rem .8rem; }
+.chip-item { background: #eef0e6; border-color: #cdd2bd; }
+.weather-now .weather-meta div:nth-child(4), .weather-now .weather-meta div:nth-child(5) { display: grid; gap: .2rem; }
 .season-section { background: var(--paper); }
 .season-heading { margin-left: 12%; max-width: 720px; }
 .season-heading > p:last-child { color: var(--ink-soft); max-width: 560px; }

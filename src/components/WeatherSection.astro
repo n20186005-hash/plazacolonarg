@@ -2,14 +2,14 @@
 /**
  * Server-rendered current conditions + 7-day outlook for Plaza Colón, Córdoba.
  * Data is fetched on the server (src/lib/weather.ts) and cached; the visitor only
- * sees practical guidance — no data-source wording appears in the UI.
+ * sees practical, data-driven guidance — no data-source wording appears in the UI.
  */
 import { getWeather } from '../lib/weather';
 
 interface Props { locale: 'es' | 'en'; }
 const { locale } = Astro.props;
 const en = locale === 'en';
-const w = await getWeather();
+const w = await getWeather(locale);
 
 const tf = new Intl.DateTimeFormat(en ? 'en-US' : 'es-AR', {
   weekday: 'short',
@@ -20,7 +20,7 @@ const tf = new Intl.DateTimeFormat(en ? 'en-US' : 'es-AR', {
 
 const labels = en
   ? {
-      eyebrow: "Córdoba weather",
+      eyebrow: 'Córdoba weather',
       title: 'Is it a good day',
       em: 'to visit?',
       now: 'Right now',
@@ -28,12 +28,16 @@ const labels = en
       humidity: 'Humidity',
       wind: 'Wind',
       precip: 'Chance of rain',
-      umbrella: 'Take an umbrella — rain is likely today.',
-      noUmbrella: 'No umbrella needed; dry and pleasant for a walk.',
-      updated: 'Refreshed at the moment of your visit.',
+      uv: 'UV',
+      riskTitle: 'Heads-up',
       forecast: 'Next 7 days',
       today: 'Today',
       kmh: 'km/h',
+      outfit: 'What to wear',
+      activity: 'How to make the most of it',
+      items: 'Bring with you',
+      updated: 'Refreshed at the moment of your visit.',
+      unavailable: 'Live conditions are not available right now; check the local forecast before you head out.',
     }
   : {
       eyebrow: 'Clima en Córdoba',
@@ -44,12 +48,16 @@ const labels = en
       humidity: 'Humedad',
       wind: 'Viento',
       precip: 'Prob. de lluvia',
-      umbrella: 'Llevá paraguas: hoy es probable que llueva.',
-      noUmbrella: 'Sin paraguas: seco y agradable para caminar.',
-      updated: 'Actualizado al momento de tu visita.',
+      uv: 'UV',
+      riskTitle: 'Aviso',
       forecast: 'Próximos 7 días',
       today: 'Hoy',
       kmh: 'km/h',
+      outfit: 'Para vestir',
+      activity: 'Cómo aprovechar',
+      items: 'Llevá con vos',
+      updated: 'Actualizado al momento de tu visita.',
+      unavailable: 'Las condiciones en vivo no están disponibles ahora; consultá el pronóstico local antes de salir.',
     };
 
 const fmtWeekday = (iso: string) => {
@@ -70,40 +78,74 @@ const fmtWeekday = (iso: string) => {
   </div>
 
   {
-    w.ok ? (
-      <div class="weather-grid">
-        <div class="weather-now">
-          <p class="weather-now-label">{labels.now}</p>
-          <p class="temp">{w.current.temp}°<span>C</span></p>
-          <p class="cond">{w.current.label.icon} {en ? w.current.label.en : w.current.label.es}</p>
-          <div class="weather-meta">
-            <div><span>{labels.feels}</span><b>{w.current.feels}°</b></div>
-            <div><span>{labels.humidity}</span><b>{w.current.humidity}%</b></div>
-            <div><span>{labels.wind}</span><b>{w.current.wind} {labels.kmh}</b></div>
+    w.ok && w.current && w.advice ? (
+      <>
+        {w.advice.risks.length > 0 && (
+          <div class="weather-risk" role="alert">
+            <span class="wr-badge" aria-hidden="true">⚠️</span>
+            <div>
+              <p class="wr-title">{labels.riskTitle}</p>
+              <ul>{w.advice.risks.map((r) => <li>{r}</li>)}</ul>
+            </div>
           </div>
-          <p class="weather-tip">{w.umbrella ? labels.umbrella : labels.noUmbrella}</p>
-        </div>
-        <div class="weather-forecast">
-          <p class="section-label">{labels.forecast}</p>
-          <div class="weather-days">
-            {w.days.map((d, i) => {
-              const f = fmtWeekday(d.date);
-              return (
-                <div class="weather-day">
-                  <p class="wd">{i === 0 ? labels.today : `${f.wk}`}</p>
-                  <p class="wdate">{f.day} {f.mon}</p>
-                  <p class="wicon" aria-hidden="true">{d.label.icon}</p>
-                  <p class="wt"><b>{d.max}°</b> {d.min}°</p>
-                  <p class="wp">{labels.precip} {d.precipProb}%</p>
-                </div>
-              );
-            })}
+        )}
+        <div class="weather-grid">
+          <div class="weather-now">
+            <p class="weather-now-label">{labels.now}</p>
+            <p class="temp">{w.current.temp}°<span>C</span></p>
+            <p class="cond">{w.current.label.icon} {en ? w.current.label.en : w.current.label.es}</p>
+            <div class="weather-meta">
+              <div><span>{labels.feels}</span><b>{w.current.feels}°</b></div>
+              <div><span>{labels.humidity}</span><b>{w.current.humidity}%</b></div>
+              <div><span>{labels.wind}</span><b>{Math.round(w.current.wind * 3.6)} {labels.kmh}</b></div>
+              <div><span>{labels.precip}</span><b>{w.current.precipProb}%</b></div>
+              <div><span>{labels.uv}</span><b>{w.current.uv}</b></div>
+            </div>
           </div>
-          <p class="weather-updated">{labels.updated}</p>
+          <div class="weather-forecast">
+            <p class="section-label">{labels.forecast}</p>
+            <div class="weather-days">
+              {w.days.map((d, i) => {
+                const f = fmtWeekday(d.date);
+                return (
+                  <div class="weather-day">
+                    <p class="wd">{i === 0 ? labels.today : `${f.wk}`}</p>
+                    <p class="wdate">{f.day} {f.mon}</p>
+                    <p class="wicon" aria-hidden="true">{d.label.icon}</p>
+                    <p class="wt"><b>{d.max}°</b> {d.min}°</p>
+                    <p class="wp">{labels.precip} {d.precipProb}%</p>
+                  </div>
+                );
+              })}
+            </div>
+            {(w.advice.outfit.length + w.advice.activity.length + w.advice.items.length) > 0 && (
+              <div class="weather-advice">
+                {w.advice.outfit.length > 0 && (
+                  <div class="advice-group">
+                    <p class="ag-title">{labels.outfit}</p>
+                    <div class="chips">{w.advice.outfit.map((s) => <span class="chip">{s}</span>)}</div>
+                  </div>
+                )}
+                {w.advice.activity.length > 0 && (
+                  <div class="advice-group">
+                    <p class="ag-title">{labels.activity}</p>
+                    <div class="chips">{w.advice.activity.map((s) => <span class="chip">{s}</span>)}</div>
+                  </div>
+                )}
+                {w.advice.items.length > 0 && (
+                  <div class="advice-group">
+                    <p class="ag-title">{labels.items}</p>
+                    <div class="chips">{w.advice.items.map((s) => <span class="chip chip-item">{s}</span>)}</div>
+                  </div>
+                )}
+              </div>
+            )}
+            <p class="weather-updated">{labels.updated}</p>
+          </div>
         </div>
-      </div>
+      </>
     ) : (
-      <p class="weather-unavailable">{en ? 'Live conditions are not available right now; check the local forecast before you head out.' : 'Las condiciones en vivo no están disponibles ahora; consultá el pronóstico local antes de salir.'}</p>
+      <p class="weather-unavailable">{labels.unavailable}</p>
     )
   }
 </section>

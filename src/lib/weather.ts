@@ -1,115 +1,255 @@
-/**
- * Server-side weather helper for Plaza Colón, Córdoba.
- * Uses the Open-Meteo forecast API (no key required). Values are fetched on the
- * server and cached so visitor-facing copy never needs to mention the data source.
- */
+// Server-side current conditions + 7-day outlook for Plaza Colón, Córdoba.
+// Data: Open-Meteo (no key required). Coordinates are the plaza's published point.
+// Results are cached in-module and via the edge (cf.cacheTtl) so the visitor
+// always sees fresh-enough values without re-hitting the upstream on every load.
 
-export const PLAZA_COLON = {
-  latitude: -31.4092824,
-  longitude: -64.1957511,
-  timezone: 'America/Argentina/Buenos_Aires',
-} as const;
+const LAT = -31.4092824;
+const LON = -64.1957511;
+const TZ = 'America/Argentina/Buenos_Aires';
 
-export interface LocalizedText {
+export interface WeatherLabel {
   es: string;
   en: string;
   icon: string;
 }
 
-export interface DayForecast {
-  date: string;
+export interface WeatherCurrent {
+  temp: number;
+  feels: number;
+  humidity: number;
+  wind: number; // m/s
+  precipProb: number;
+  uv: number;
   code: number;
-  label: LocalizedText;
+  label: WeatherLabel;
+}
+
+export interface WeatherDay {
+  date: string;
   max: number;
   min: number;
   precipProb: number;
+  uvMax: number;
+  windMax: number;
+  code: number;
+  label: WeatherLabel;
 }
 
-export interface WeatherData {
+export interface WeatherAdvice {
+  outfit: string[]; // 出行穿搭
+  activity: string[]; // 游玩安排
+  items: string[]; // 随身物品
+  risks: string[]; // 风险提醒（有才显示）
+}
+
+export interface WeatherResult {
   ok: boolean;
-  fetchedAt: string;
-  current: {
-    temp: number;
-    feels: number;
-    humidity: number;
-    wind: number;
-    code: number;
-    label: LocalizedText;
-    precip: number;
+  current?: WeatherCurrent;
+  today?: WeatherDay;
+  days: WeatherDay[];
+  advice?: WeatherAdvice;
+  error?: string;
+}
+
+// WMO weather interpretation codes → bilingual, human label + emoji icon.
+function describe(code: number): WeatherLabel {
+  const map: Record<number, WeatherLabel> = {
+    0: { es: 'Despejado', en: 'Clear', icon: '☀️' },
+    1: { es: 'Mayormente despejado', en: 'Mainly clear', icon: '🌤️' },
+    2: { es: 'Parcialmente nublado', en: 'Partly cloudy', icon: '⛅' },
+    3: { es: 'Nublado', en: 'Overcast', icon: '☁️' },
+    45: { es: 'Niebla', en: 'Fog', icon: '🌫️' },
+    48: { es: 'Niebla helada', en: 'Rime fog', icon: '🌫️' },
+    51: { es: 'Llovizna leve', en: 'Light drizzle', icon: '🌦️' },
+    53: { es: 'Llovizna', en: 'Drizzle', icon: '🌦️' },
+    55: { es: 'Llovizna intensa', en: 'Dense drizzle', icon: '🌧️' },
+    56: { es: 'Llovizna helada', en: 'Freezing drizzle', icon: '🌧️' },
+    57: { es: 'Llovizna helada fuerte', en: 'Freezing drizzle', icon: '🌧️' },
+    61: { es: 'Lluvia leve', en: 'Slight rain', icon: '🌦️' },
+    63: { es: 'Lluvia', en: 'Rain', icon: '🌧️' },
+    65: { es: 'Lluvia fuerte', en: 'Heavy rain', icon: '🌧️' },
+    66: { es: 'Lluvia helada', en: 'Freezing rain', icon: '🌧️' },
+    67: { es: 'Lluvia helada fuerte', en: 'Heavy freezing rain', icon: '🌧️' },
+    71: { es: 'Nieve leve', en: 'Slight snow', icon: '🌨️' },
+    73: { es: 'Nieve', en: 'Snow', icon: '🌨️' },
+    75: { es: 'Nieve fuerte', en: 'Heavy snow', icon: '🌨️' },
+    77: { es: 'Granizo', en: 'Snow grains', icon: '🌨️' },
+    80: { es: 'Chubasco leve', en: 'Slight shower', icon: '🌦️' },
+    81: { es: 'Chubascos', en: 'Showers', icon: '🌧️' },
+    82: { es: 'Chubascos fuertes', en: 'Violent showers', icon: '⛈️' },
+    85: { es: 'Nieve leve', en: 'Slight snow', icon: '🌨️' },
+    86: { es: 'Nieve fuerte', en: 'Heavy snow', icon: '🌨️' },
+    95: { es: 'Tormenta', en: 'Thunderstorm', icon: '⛈️' },
+    96: { es: 'Tormenta con granizo', en: 'Thunderstorm w/ hail', icon: '⛈️' },
+    99: { es: 'Tormenta fuerte con granizo', en: 'Severe thunderstorm', icon: '⛈️' },
   };
-  days: DayForecast[];
-  /** Simple visitor-facing hint: should I bring an umbrella today? */
-  umbrella: boolean;
+  return map[code] ?? { es: 'Variable', en: 'Variable', icon: '🌡️' };
 }
 
-const RAINY_CODES = new Set([
-  51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 71, 73, 75, 77, 80, 81, 82, 85, 86, 95, 96, 99,
-]);
-
-const WMO: Record<number, { es: string; en: string; icon: string; rainy: boolean }> = {
-  0: { es: 'Despejado', en: 'Clear', icon: '☀️', rainy: false },
-  1: { es: 'Mayormente despejado', en: 'Mainly clear', icon: '🌤️', rainy: false },
-  2: { es: 'Parcialmente nublado', en: 'Partly cloudy', icon: '⛅', rainy: false },
-  3: { es: 'Nublado', en: 'Overcast', icon: '☁️', rainy: false },
-  45: { es: 'Niebla', en: 'Fog', icon: '🌫️', rainy: false },
-  48: { es: 'Niebla con escarcha', en: 'Rime fog', icon: '🌫️', rainy: false },
-  51: { es: 'Llovizna ligera', en: 'Light drizzle', icon: '🌦️', rainy: true },
-  53: { es: 'Llovizna', en: 'Drizzle', icon: '🌦️', rainy: true },
-  55: { es: 'Llovizna intensa', en: 'Dense drizzle', icon: '🌦️', rainy: true },
-  56: { es: 'Llovizna helada', en: 'Freezing drizzle', icon: '🌧️', rainy: true },
-  57: { es: 'Llovizna helada intensa', en: 'Freezing drizzle', icon: '🌧️', rainy: true },
-  61: { es: 'Lluvia leve', en: 'Slight rain', icon: '🌧️', rainy: true },
-  63: { es: 'Lluvia', en: 'Rain', icon: '🌧️', rainy: true },
-  65: { es: 'Lluvia intensa', en: 'Heavy rain', icon: '🌧️', rainy: true },
-  66: { es: 'Lluvia helada', en: 'Freezing rain', icon: '🌧️', rainy: true },
-  67: { es: 'Lluvia helada intensa', en: 'Freezing rain', icon: '🌧️', rainy: true },
-  71: { es: 'Nieve leve', en: 'Slight snow', icon: '❄️', rainy: true },
-  73: { es: 'Nieve', en: 'Snow', icon: '❄️', rainy: true },
-  75: { es: 'Nieve intensa', en: 'Heavy snow', icon: '❄️', rainy: true },
-  77: { es: 'Granizo menudo', en: 'Snow grains', icon: '❄️', rainy: true },
-  80: { es: 'Chubascos leves', en: 'Slight showers', icon: '🌦️', rainy: true },
-  81: { es: 'Chubascos', en: 'Showers', icon: '🌦️', rainy: true },
-  82: { es: 'Chubascos intensos', en: 'Violent showers', icon: '⛈️', rainy: true },
-  85: { es: 'Chubascos de nieve', en: 'Snow showers', icon: '🌨️', rainy: true },
-  86: { es: 'Chubascos de nieve intensos', en: 'Heavy snow showers', icon: '🌨️', rainy: true },
-  95: { es: 'Tormenta', en: 'Thunderstorm', icon: '⛈️', rainy: true },
-  96: { es: 'Tormenta con granizo', en: 'Thunderstorm with hail', icon: '⛈️', rainy: true },
-  99: { es: 'Tormenta con granizo intensa', en: 'Severe thunderstorm', icon: '⛈️', rainy: true },
-};
-
-function describe(code: number): { es: string; en: string; icon: string; rainy: boolean } {
-  return WMO[code] ?? { es: 'Cielo variable', en: 'Changeable sky', icon: '🌡️', rainy: false };
+function beaufort(ms: number): number {
+  const t = [
+    [0.3, 0], [1.6, 1], [3.4, 2], [5.5, 3], [8.0, 4], [10.8, 5],
+    [13.9, 6], [17.2, 7], [20.8, 8], [24.5, 9], [28.5, 10], [32.7, 11],
+  ];
+  for (const [limit, lvl] of t) if (ms < limit) return lvl;
+  return 12;
 }
 
-const CACHE_TTL_MS = 10 * 60 * 1000;
-let memoryCache: { data: WeatherData; ts: number } | null = null;
+function rainLevel(code: number): 'none' | 'light' | 'moderate' | 'heavy' | 'thunder' {
+  if ([95, 96, 99].includes(code)) return 'thunder';
+  if ([82, 65, 66, 67].includes(code)) return 'heavy';
+  if ([63, 81].includes(code)) return 'moderate';
+  if ([51, 53, 55, 56, 57, 61, 80].includes(code)) return 'light';
+  return 'none';
+}
+
+// Actionable, jargon-free advice for an urban heritage square. Multi-select:
+// each branch appends only when its condition holds, so empty groups are hidden.
+function buildAdvice(
+  es: boolean,
+  cur: WeatherCurrent,
+  today: WeatherDay,
+): WeatherAdvice {
+  const out: WeatherAdvice = { outfit: [], activity: [], items: [], risks: [] };
+  const add = (arr: string[], s?: string) => { if (s && !arr.includes(s)) arr.push(s); };
+
+  const prob = Math.max(cur.precipProb, today.precipProb);
+  const rl = rainLevel(cur.code);
+  const windLvl = beaufort(cur.wind);
+  const tmax = today.max;
+  const tmin = today.min;
+  const diff = tmax - tmin;
+
+  // 降水概率
+  if (prob >= 60) {
+    add(out.activity, es
+      ? 'Alta probabilidad de lluvia: llevá paraguas; si podés, priorizá espacios cubiertos.'
+      : 'High rain chance: carry an umbrella; prefer covered areas if you can.');
+    add(out.items, es ? 'Paraguas / impermeable' : 'Umbrella / raincoat');
+  }
+
+  // 降雨强度
+  if (rl === 'light') {
+    add(out.outfit, es
+      ? 'Lluvia leve, caminos resbaladizos: usá calzado antideslizante.'
+      : 'Light rain, slippery paths: wear grippy shoes.');
+    add(out.activity, es
+      ? 'La lluvia baja la comodidad al aire libre; aprovechá los bancos a la sombra.'
+      : 'Light rain lowers outdoor comfort; use the shaded benches.');
+    add(out.items, es ? 'Paraguas plegable' : 'Compact umbrella');
+  } else if (rl === 'moderate') {
+    add(out.activity, es
+      ? 'Lluvia moderada: acortá el paseo al aire libre.'
+      : 'Moderate rain: shorten the outdoor walk.');
+    add(out.items, es ? 'Paraguas' : 'Umbrella');
+  } else if (rl === 'heavy') {
+    add(out.risks, es
+      ? 'Lluvia intensa: evitá bajos y desagües; los tramos abiertos se complican.'
+      : 'Heavy rain: avoid low spots and drains; open areas get uncomfortable.');
+    add(out.activity, es
+      ? 'No es el mejor momento para el paseo al aire libre; buscá galerías o cafés cercanos.'
+      : 'Not ideal for an outdoor walk; seek nearby galleries or cafés.');
+    add(out.items, es ? 'Impermeable (el paraguas largo se complica con viento)' : 'Raincoat (a long umbrella is awkward in wind)');
+  } else if (rl === 'thunder') {
+    add(out.risks, es
+      ? 'Tormenta eléctrica: no te refugies bajo árboles ni en zona abierta; los paseos se suspenden.'
+      : 'Thunderstorm: don’t shelter under trees or in open ground; walks pause.');
+    add(out.activity, es
+      ? 'Las actividades al aire libre cierran con la tormenta.'
+      : 'Outdoor activities pause during storms.');
+    add(out.items, es ? 'Impermeable' : 'Raincoat');
+  }
+
+  // 高温
+  if (tmax >= 32 || cur.temp >= 32) {
+    add(out.outfit, es ? 'Hace calor: ropa ligera y transpirable.' : 'Hot: light, breathable clothing.');
+    add(out.activity, es
+      ? 'Evitá la hora central; hacé pausas a la sombra del arbolado.'
+      : 'Avoid midday; take shade breaks under the canopy.');
+    add(out.items, es ? 'Protector solar, gafas de sol, agua' : 'Sunscreen, sunglasses, water');
+  }
+
+  // 紫外线
+  if (cur.uv >= 5 || today.uvMax >= 5) {
+    add(out.outfit, es ? 'Sol fuerte: gorra y protector solar.' : 'Strong sun: cap and sunscreen.');
+    add(out.items, es ? 'Protector solar, gafas de sol, gorra' : 'Sunscreen, sunglasses, cap');
+  }
+
+  // 低温 / 温差
+  if (diff > 8) {
+    add(out.outfit, es
+      ? 'Mucha diferencia día/noche: llevá una prenda para sumar o sacar.'
+      : 'Big day–night swing: bring a layer to add or remove.');
+  }
+  if (tmax <= 10) {
+    add(out.outfit, es ? 'Frío: abrigo y bufanda.' : 'Cold: coat and scarf.');
+    add(out.items, es ? 'Abrigo' : 'Coat');
+  }
+
+  // 风力
+  if (windLvl >= 7) {
+    add(out.risks, es
+      ? 'Viento fuerte: alejate de carteles y ramas; los tramos al aire libre se cierran.'
+      : 'Strong wind: keep away from signs and branches; open stretches close.');
+    add(out.items, es ? 'Prenda de abrigo ceñida' : 'Fitted outer layer');
+  } else if (windLvl >= 5) {
+    add(out.outfit, es
+      ? 'Viento: una gorra puede volar; evitá faldas amplias.'
+      : 'Wind: a cap can blow away; avoid wide skirts.');
+    add(out.activity, es
+      ? 'El viento molesta en las áreas abiertas de la plaza.'
+      : 'Wind is annoying in the open parts of the square.');
+  }
+
+  // 晴 / 阴
+  if ([0, 1].includes(cur.code)) {
+    add(out.activity, es
+      ? 'Día despejado: ideal para recorrer la plaza y fotografiar la fuente.'
+      : 'Clear day: ideal to walk the square and shoot the fountain.');
+    add(out.items, es ? 'No olvides el protector solar' : 'Don’t skip sunscreen');
+  } else if (cur.code === 3) {
+    add(out.activity, es
+      ? 'Cielo cubierto: luz suave, muy buena para fotos y paseo largo.'
+      : 'Overcast: soft light, great for photos and a long walk.');
+  }
+
+  // 雾
+  if ([45, 48].includes(cur.code)) {
+    add(out.risks, es
+      ? 'Niebla: poca visibilidad; no es el momento de fotos lejanas.'
+      : 'Fog: low visibility; not a time for distant photos.');
+  }
+
+  // 高湿体感
+  if (cur.humidity >= 85) {
+    add(out.outfit, es
+      ? 'Humedad alta: la sensación es más pesada; ropa liviana ayuda.'
+      : 'High humidity: it feels heavier; light clothing helps.');
+  }
+
+  return out;
+}
+
+let cache: { at: number; value: WeatherResult } | null = null;
+const TTL = 10 * 60 * 1000;
 
 function buildUrl(): string {
+  const cur = 'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,precipitation_probability,uv_index';
+  const daily = 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max,wind_speed_10m_max';
   const p = new URLSearchParams({
-    latitude: String(PLAZA_COLON.latitude),
-    longitude: String(PLAZA_COLON.longitude),
-    current: 'temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m',
-    daily: 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max',
-    timezone: PLAZA_COLON.timezone,
+    latitude: String(LAT),
+    longitude: String(LON),
+    current: cur,
+    daily,
+    timezone: TZ,
     forecast_days: '7',
-    wind_speed_unit: 'kmh',
+    wind_speed_unit: 'ms',
   });
   return `https://api.open-meteo.com/v1/forecast?${p.toString()}`;
 }
 
-function fallback(date = new Date()): WeatherData {
-  return {
-    ok: false,
-    fetchedAt: date.toISOString(),
-    current: { temp: 0, feels: 0, humidity: 0, wind: 0, code: 0, label: { es: 'Información no disponible', en: 'Unavailable', icon: '🌡️' }, precip: 0 },
-    days: [],
-    umbrella: false,
-  };
-}
-
-export async function getWeather(): Promise<WeatherData> {
-  const now = Date.now();
-  if (memoryCache && now - memoryCache.ts < CACHE_TTL_MS) return memoryCache.data;
+export async function getWeather(locale: 'es' | 'en' = 'es'): Promise<WeatherResult> {
+  if (cache && Date.now() - cache.at < TTL) return cache.value;
 
   try {
     const opts: any = {
@@ -119,48 +259,44 @@ export async function getWeather(): Promise<WeatherData> {
       signal: AbortSignal.timeout(6000),
     };
     const res = await fetch(buildUrl(), opts);
-    if (!res.ok) throw new Error(`weather ${res.status}`);
-    const json = (await res.json()) as any;
-    const cur = json.current;
-    const daily = json.daily;
+    if (!res.ok) throw new Error(`upstream ${res.status}`);
+    const d: any = await res.json();
 
-    const current = {
-      temp: Math.round(cur.temperature_2m),
-      feels: Math.round(cur.apparent_temperature),
-      humidity: Math.round(cur.relative_humidity_2m),
-      wind: Math.round(cur.wind_speed_10m),
-      code: cur.weather_code,
-      label: describe(cur.weather_code),
-      precip: cur.precipitation ?? 0,
+    const cur: WeatherCurrent = {
+      temp: Math.round(d.current.temperature_2m),
+      feels: Math.round(d.current.apparent_temperature),
+      humidity: Math.round(d.current.relative_humidity_2m),
+      wind: d.current.wind_speed_10m,
+      precipProb: Math.round(d.current.precipitation_probability ?? 0),
+      uv: Math.round(d.current.uv_index ?? 0),
+      code: d.current.weather_code,
+      label: describe(d.current.weather_code),
     };
 
-    const days: DayForecast[] = (daily?.time ?? []).map((date: string, i: number) => {
-      const code = daily.weather_code[i];
-      return {
-        date,
-        code,
-        label: describe(code),
-        max: Math.round(daily.temperature_2m_max[i]),
-        min: Math.round(daily.temperature_2m_min[i]),
-        precipProb: Math.round(daily.precipitation_probability_max?.[i] ?? 0),
-      };
-    });
+    const days: WeatherDay[] = (d.daily.time as string[]).map((date: string, i: number) => ({
+      date,
+      max: Math.round(d.daily.temperature_2m_max[i]),
+      min: Math.round(d.daily.temperature_2m_min[i]),
+      precipProb: Math.round(d.daily.precipitation_probability_max[i] ?? 0),
+      uvMax: Math.round(d.daily.uv_index_max[i] ?? 0),
+      windMax: d.daily.wind_speed_10m_max[i],
+      code: d.daily.weather_code[i],
+      label: describe(d.daily.weather_code[i]),
+    }));
 
     const today = days[0];
-    const umbrella =
-      current.precip > 0.1 || current.label.rainy || (today ? today.precipProb >= 40 : false);
-
-    const data: WeatherData = {
+    const result: WeatherResult = {
       ok: true,
-      fetchedAt: new Date().toISOString(),
-      current,
+      current: cur,
+      today,
       days,
-      umbrella,
+      advice: buildAdvice(locale === 'es', cur, today),
     };
-    memoryCache = { data, ts: now };
-    return data;
-  } catch {
-    if (memoryCache) return memoryCache.data;
-    return fallback();
+    cache = { at: Date.now(), value: result };
+    return result;
+  } catch (e) {
+    const fallback: WeatherResult = { ok: false, days: [], error: e instanceof Error ? e.message : 'weather error' };
+    cache = { at: Date.now(), value: fallback };
+    return fallback;
   }
 }
