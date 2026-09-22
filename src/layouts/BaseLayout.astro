@@ -4,6 +4,7 @@
  * deep ink text, and real Plaza Colón photography as the dominant visual material.
  */
 import '../styles/global.css';
+import { SITE_NAME, SITE_NAME_EN } from '../data/site';
 
 interface Props {
   title: string;
@@ -14,6 +15,8 @@ interface Props {
 
 const { title, description, locale = 'es', faqItems = [] } = Astro.props;
 const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
+const siteBase = Astro.site ?? new URL('https://plazacolonarg.com');
+const attractionId = new URL('#attraction', siteBase).href;
 const isEnglish = locale === 'en';
 const attractionSchema = {
   '@context': 'https://schema.org',
@@ -40,10 +43,12 @@ const attractionSchema = {
     { '@type': 'City', name: 'Córdoba, Argentina' },
   ],
   hasMap: 'https://maps.app.goo.gl/VFVHXX42gPEcgbg76',
-  sameAs: ['https://turismo.cordoba.gob.ar/plaza-colon/'],
+  sameAs: ['https://maps.app.goo.gl/VFVHXX42gPEcgbg76', 'https://turismo.cordoba.gob.ar/plaza-colon/'],
   openingHours: 'Mo-Su 00:00-23:59',
-  aggregateRating: { '@type': 'AggregateRating', ratingValue: '4.1', reviewCount: '18791', bestRating: '5' },
-  image: '/images/plaza-colon-fuente-atardecer.jpg',
+  aggregateRating: { '@type': 'AggregateRating', ratingValue: '4.1', reviewCount: '18827', bestRating: '5' },
+  image: ['https://plazacolonarg.com/images/plaza-colon-fuente-atardecer.jpg'],
+  isAccessibleForFree: true,
+  '@id': attractionId,
   photo: {
     '@type': 'Photograph',
     image: '/images/plaza-colon-fuente-atardecer.jpg',
@@ -83,8 +88,10 @@ const faqSchema = {
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
+    <meta property="og:site_name" content={locale === 'en' ? SITE_NAME_EN : SITE_NAME} />
     {canonical && <meta property="og:url" content={canonical} />}
     {canonical && <meta property="og:image" content={new URL('/images/plaza-colon-fuente-atardecer.jpg', Astro.site).href} />}
+    {canonical && <meta property="og:image:alt" content={isEnglish ? 'Plaza Colón in Córdoba, Argentina' : 'Plaza Colón en Córdoba, Argentina'} />}
     <meta name="twitter:card" content="summary_large_image" />
     <title>{title}</title>
     <script is:inline>
@@ -100,6 +107,13 @@ const faqSchema = {
     </script>
     <script is:inline type="application/ld+json" set:html={JSON.stringify(attractionSchema)}></script>
     <script is:inline type="application/ld+json" set:html={JSON.stringify(faqSchema)}></script>
+    <script is:inline>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+    </script>
   </head>
   <body><slot /></body>
 </html>

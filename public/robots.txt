@@ -1,12 +1,4 @@
 User-agent: *
 Allow: /
-*** Add File: /home/ubuntu/plaza-colon-guia/wrangler.jsonc
-{
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "plaza-colon-guia",
-  "main": "./dist/_worker.js/index.js",
-  "assets": {
-    "directory": "./dist"
-  },
-  "compatibility_date": "2026-08-26"
-}
+
+Sitemap: https://plazacolonarg.com/sitemap-index.xml

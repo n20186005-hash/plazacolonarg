@@ -1,12 +1,19 @@
 {
-  "name": "Plaza Colón · Guía de visita",
+  "name": "Plaza Colón Córdoba — Guía de visita",
   "short_name": "Plaza Colón",
+  "description": "Guía de interés público y sin fines de lucro sobre Plaza Colón en el barrio Alberdi, Córdoba, Argentina: historia, fuente de hierro de París, accesos y desambiguación toponímica.",
+  "lang": "es-AR",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#17382E",
+  "background_color": "#F5F0E5",
+  "categories": ["travel", "education"],
   "icons": [
     { "src": "/favicon.svg", "sizes": "16x16", "type": "image/svg+xml" },
     { "src": "/favicon.svg", "sizes": "32x32", "type": "image/svg+xml" },
-    { "src": "/apple-touch-icon.svg", "sizes": "180x180", "type": "image/svg+xml" }
-  ],
-  "theme_color": "#17382E",
-  "background_color": "#F5F0E5",
-  "display": "standalone"
+    { "src": "/apple-touch-icon.svg", "sizes": "180x180", "type": "image/svg+xml", "purpose": "any" }
+  ]
 }

@@ -7,6 +7,12 @@ dist/
 build/
 *.dist
 
+# Astro / Cloudflare runtime caches
+.astro/
+.wrangler/
+.wrangler-out/
+.dev.vars
+
 # Environment variables
 .env
 .env.local

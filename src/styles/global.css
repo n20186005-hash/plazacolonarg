@@ -30,7 +30,7 @@ main > section { position: relative; z-index: 1; }
 .water-thread-shadow { fill: none; stroke: #d8c8aa; stroke-width: 5.2; }
 .water-thread-line { fill: none; stroke: var(--bronze); stroke-dasharray: 2 5; stroke-linecap: round; stroke-width: 1.15; }
 .water-stations circle { fill: var(--paper); stroke: var(--bronze); stroke-width: 2.1; }
-main > :is(.story-section,.botanical-section,.planner-section,.practical-section,.getting-there,.services-section,.map-section,.nearby-section,.method-section,.faq-section,.sources-section)::after { align-items: center; background: var(--paper); border: 1px solid var(--bronze); border-radius: 50%; box-shadow: 0 0 0 5px rgba(245,240,229,.88); color: var(--bronze); content: '✦'; display: flex; font-size: .6rem; height: 23px; justify-content: center; left: calc(8vw - 17px); position: absolute; top: 2.15rem; width: 23px; z-index: 2; }
+main > :is(.story-section,.botanical-section,.planner-section,.practical-section,.getting-there,.services-section,.map-section,.nearby-section,.method-section,.faq-section,.sources-section,.weather-section,.season-section,.science-section)::after { align-items: center; background: var(--paper); border: 1px solid var(--bronze); border-radius: 50%; box-shadow: 0 0 0 5px rgba(245,240,229,.88); color: var(--bronze); content: '✦'; display: flex; font-size: .6rem; height: 23px; justify-content: center; left: calc(8vw - 17px); position: absolute; top: 2.15rem; width: 23px; z-index: 2; }
 .practical-section::after, .method-section::after, .map-section::after { background: var(--ink); box-shadow: 0 0 0 5px rgba(21,52,43,.84); color: #e8c993; }
 
 .skip-link { position: fixed; z-index: 100; left: 1rem; top: 1rem; padding: .65rem 1rem; background: var(--paper); transform: translateY(-150%); transition: transform 160ms cubic-bezier(.23, 1, .32, 1); }
@@ -269,6 +269,63 @@ h2 { font-family: var(--serif); font-size: clamp(2.8rem, 5vw, 5.3rem); line-heig
 .footer-links { display: flex; gap: 1rem; justify-content: flex-end; }
 .footer-links a { color: #e1bf88; font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 
+.weather-section { background: #fcfaf4; }
+.weather-heading { margin-left: 12%; max-width: 640px; }
+.weather-heading > em { color: var(--ink-soft); font-style: italic; }
+.weather-grid { display: grid; grid-template-columns: .82fr 1.18fr; gap: clamp(2rem, 5vw, 5rem); margin: 3.5rem auto 0; max-width: 1240px; }
+.weather-now { background: var(--ink); color: white; padding: clamp(2rem, 4vw, 3rem); }
+.weather-now-label { color: #cab992; font-size: .66rem; font-weight: 800; letter-spacing: .14em; margin: 0 0 1rem; text-transform: uppercase; }
+.weather-now .temp { font-family: var(--serif); font-size: clamp(3.6rem, 7vw, 5.6rem); line-height: .88; margin: 0; }
+.weather-now .temp span { color: #e2c28e; font-size: .4em; margin-left: .15rem; }
+.weather-now .cond { color: #e2c28e; font-family: var(--serif); font-size: 1.3rem; margin: .6rem 0 0; }
+.weather-meta { display: flex; flex-wrap: wrap; gap: 1.4rem; margin-top: 1.6rem; }
+.weather-meta div { display: grid; gap: .2rem; }
+.weather-meta span { color: #cab992; font-size: .6rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.weather-meta b { font-family: var(--serif); font-size: 1.5rem; font-weight: 400; }
+.weather-tip { border-top: 1px solid rgba(255,255,255,.18); color: rgba(255,255,255,.86); font-size: .95rem; margin: 1.6rem 0 0; padding-top: 1.25rem; }
+.weather-forecast .section-label { margin: 0 0 1rem; }
+.weather-days { border: 1px solid var(--line); display: grid; grid-template-columns: repeat(7, 1fr); }
+.weather-day { border-right: 1px solid var(--line); padding: 1.1rem .5rem; text-align: center; }
+.weather-day:last-child { border-right: 0; }
+.weather-day .wd { color: var(--bronze); font-size: .62rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; margin: 0; }
+.weather-day .wdate { color: var(--ink-soft); font-size: .72rem; margin: .15rem 0 .55rem; }
+.weather-day .wicon { font-size: 1.6rem; margin: 0 0 .5rem; }
+.weather-day .wt { font-family: var(--serif); font-size: 1.15rem; margin: 0; }
+.weather-day .wt b { font-weight: 400; }
+.weather-day .wp { color: var(--ink-soft); font-size: .66rem; letter-spacing: .03em; margin: .25rem 0 0; }
+.weather-updated { color: var(--ink-soft); font-size: .74rem; font-style: italic; margin: 1.1rem 0 0; }
+.weather-unavailable { background: #efe5d3; color: var(--ink-soft); margin: 3rem auto 0; max-width: 1240px; padding: 1.6rem 2rem; }
+.season-section { background: var(--paper); }
+.season-heading { margin-left: 12%; max-width: 720px; }
+.season-heading > p:last-child { color: var(--ink-soft); max-width: 560px; }
+.season-table-wrap { margin: 3.5rem auto 0; max-width: 1240px; overflow-x: auto; }
+.season-table-wrap table { border-collapse: collapse; min-width: 760px; width: 100%; }
+.season-table-wrap caption { caption-side: top; color: var(--bronze-deep); font-family: var(--serif); font-size: 1.15rem; font-style: italic; padding-bottom: .9rem; text-align: left; }
+.season-table-wrap th, .season-table-wrap td { border-bottom: 1px solid var(--line); padding: 1.1rem 1rem; text-align: left; vertical-align: top; }
+.season-table-wrap thead th { background: rgba(201,153,89,.07); border-bottom: 2px solid var(--bronze); color: var(--bronze); font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; }
+.season-table-wrap tbody th { color: var(--ink); font-family: var(--serif); font-size: 1.2rem; font-weight: 400; }
+.season-table-wrap tbody td { color: var(--ink-soft); font-size: .92rem; line-height: 1.6; }
+.general-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin: 3.5rem auto 0; max-width: 1240px; }
+.general-grid article { border-left: 1px solid var(--line); min-height: 260px; padding: 1.8rem; position: relative; }
+.general-grid article:first-child { border-left: 0; }
+.general-grid article::after { border: 1px solid var(--bronze); border-radius: 999px; content: ''; height: 11px; position: absolute; right: 1.25rem; top: 1.25rem; width: 11px; }
+.general-grid article > span { color: var(--bronze); font-size: .68rem; font-weight: 800; letter-spacing: .12em; }
+.general-grid .route-time { color: var(--bronze-deep); font-size: .66rem; font-weight: 800; letter-spacing: .1em; margin: .7rem 0 .25rem; text-transform: uppercase; }
+.general-grid h3 { font-family: var(--serif); font-size: 2rem; margin-bottom: .6rem; }
+.general-grid p:not(.route-time) { color: var(--ink-soft); font-size: .9rem; }
+.general-grid ul { border-top: 1px solid var(--line); list-style: none; margin: 1.25rem 0 0; padding: .9rem 0 0; }
+.general-grid li { font-size: .75rem; font-weight: 800; margin-top: .4rem; }
+.general-grid li:before { color: var(--bronze); content: '— '; }
+.science-section { background: var(--paper-deep); }
+.science-heading { margin-left: 12%; max-width: 720px; }
+.science-heading > p:last-child { color: var(--ink-soft); max-width: 560px; }
+.science-points { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin: 3.5rem auto 0; max-width: 1240px; background: rgba(21,52,43,.18); }
+.science-points article { background: var(--paper-deep); min-height: 200px; padding: 1.6rem; }
+.science-points article:nth-child(2), .science-points article:nth-child(5) { background: #f7f2e8; }
+.science-points article:nth-child(3), .science-points article:nth-child(6) { background: #efe5d3; }
+.science-points h3 { font-family: var(--serif); font-size: 1.7rem; margin-bottom: .6rem; }
+.science-points p { color: var(--ink-soft); font-size: .9rem; }
+
 @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
 .category-badge { background: linear-gradient(90deg, rgba(201,153,89,.09), rgba(201,153,89,.03)); border: 1px solid rgba(201,153,89,.32); border-radius: 2px; color: var(--bronze); display: inline-block; font-size: .68rem; font-weight: 800; letter-spacing: .2em; margin: 0 0 1.1rem; padding: .55rem 1rem; text-transform: uppercase; }
@@ -332,5 +389,5 @@ h2 { font-family: var(--serif); font-size: clamp(2.8rem, 5vw, 5.3rem); line-heig
   .planner-heading, .arrival-intro, .nearby-heading, .services-heading, .comparison-intro { margin-left: 0; } .planner { margin-top: 2rem; } .planner-tabs { grid-template-columns: 1fr; } .planner-tab { border-left: 3px solid transparent; border-top: 0; font-size: 1.15rem; } .planner-view { grid-template-columns: 1fr; } .planner-photo { display: none; } .route-notes, .mobility-grid-four, .service-notes, .sources-section > div { grid-template-columns: 1fr; } .route-notes article, .mobility-grid article, .sources-section a { border-left: 0; border-top: 1px solid var(--line); margin-top: 0 !important; } .route-notes article:first-child, .mobility-grid article:first-child, .sources-section a:first-child { border-top: 0; } .sources-section { padding: 4rem 1.5rem; } .comparison-note { margin-left: 0; } main > :is(.story-section,.botanical-section,.planner-section,.practical-section,.getting-there,.services-section,.map-section,.nearby-section,.method-section,.comparison-section,.faq-section,.sources-section, .disambig-screen, .arch-screen)::after { left: .8rem; top: 1rem; }
   .practical-copy { padding: 4rem 1.5rem; } .practical-list div { gap: .5rem; grid-template-columns: 1fr; } .mobility-grid { grid-template-columns: 1fr; } .mobility-grid article { min-height: 0; } .parking-callout { align-items: start; grid-template-columns: 62px 1fr; padding: 1.5rem; } .parking-callout .inline-link { grid-column: span 2; }
   .map-copy { padding: 4rem 1.5rem; } .nearby-columns { margin-top: 2.5rem; } .faq-section { padding: 5rem 1.5rem; } .faq-list summary { font-size: 1.25rem; }
-  .site-footer { grid-template-columns: 1fr; padding: 3rem 1.5rem; } .site-footer > p { grid-column: auto; order: 0; } .footer-links { justify-content: flex-start; } .method-section { padding: 4rem 1.5rem; } .policy-main { padding: 4rem 1.5rem; }
+  .site-footer { grid-template-columns: 1fr; padding: 3rem 1.5rem; } .site-footer > p { grid-column: auto; order: 0; } .footer-links { justify-content: flex-start; }   .method-section { padding: 4rem 1.5rem; } .policy-main { padding: 4rem 1.5rem; } .general-grid, .science-points { grid-template-columns: 1fr; } .general-grid article, .science-points article { border-left: 0; border-top: 1px solid var(--line); margin-top: 0 !important; } .general-grid article:first-child, .science-points article:first-child { border-top: 0; }
 }

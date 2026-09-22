@@ -5,8 +5,8 @@ const { locale } = Astro.props;
 const en = locale === 'en';
 const home = en ? '/en/' : '/';
 const nav = en
-  ? [['#history', 'History'], ['#visit', 'Visit'], ['#transport', 'Getting here'], ['#services', 'Services'], ['#nearby', 'Nearby'], ['#faq', 'FAQ']]
-  : [['#historia', 'Historia'], ['#visita', 'Visita'], ['#transporte', 'Cómo llegar'], ['#servicios', 'Servicios'], ['#alrededores', 'Alrededores'], ['#faq', 'Preguntas']];
+  ? [['#history', 'History'], ['#visit', 'Visit'], ['#weather', 'Weather'], ['#transport', 'Getting here'], ['#services', 'Services'], ['#nearby', 'Nearby'], ['#faq', 'FAQ']]
+  : [['#historia', 'Historia'], ['#visita', 'Visita'], ['#weather', 'Clima'], ['#transporte', 'Cómo llegar'], ['#servicios', 'Servicios'], ['#alrededores', 'Alrededores'], ['#faq', 'Preguntas']];
 ---
 <a class="skip-link" href="#content">{en ? 'Skip to content' : 'Saltar al contenido'}</a>
 <header class="site-header site-header-expanded">

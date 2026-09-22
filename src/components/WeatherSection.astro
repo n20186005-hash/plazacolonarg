@@ -1,0 +1,109 @@
+---
+/**
+ * Server-rendered current conditions + 7-day outlook for Plaza Colón, Córdoba.
+ * Data is fetched on the server (src/lib/weather.ts) and cached; the visitor only
+ * sees practical guidance — no data-source wording appears in the UI.
+ */
+import { getWeather } from '../lib/weather';
+
+interface Props { locale: 'es' | 'en'; }
+const { locale } = Astro.props;
+const en = locale === 'en';
+const w = await getWeather();
+
+const tf = new Intl.DateTimeFormat(en ? 'en-US' : 'es-AR', {
+  weekday: 'short',
+  day: 'numeric',
+  month: 'short',
+  timeZone: 'America/Argentina/Buenos_Aires',
+});
+
+const labels = en
+  ? {
+      eyebrow: "Córdoba weather",
+      title: 'Is it a good day',
+      em: 'to visit?',
+      now: 'Right now',
+      feels: 'Feels like',
+      humidity: 'Humidity',
+      wind: 'Wind',
+      precip: 'Chance of rain',
+      umbrella: 'Take an umbrella — rain is likely today.',
+      noUmbrella: 'No umbrella needed; dry and pleasant for a walk.',
+      updated: 'Refreshed at the moment of your visit.',
+      forecast: 'Next 7 days',
+      today: 'Today',
+      kmh: 'km/h',
+    }
+  : {
+      eyebrow: 'Clima en Córdoba',
+      title: '¿Hace buen día',
+      em: 'para visitar?',
+      now: 'En este momento',
+      feels: 'Sensación',
+      humidity: 'Humedad',
+      wind: 'Viento',
+      precip: 'Prob. de lluvia',
+      umbrella: 'Llevá paraguas: hoy es probable que llueva.',
+      noUmbrella: 'Sin paraguas: seco y agradable para caminar.',
+      updated: 'Actualizado al momento de tu visita.',
+      forecast: 'Próximos 7 días',
+      today: 'Hoy',
+      kmh: 'km/h',
+    };
+
+const fmtWeekday = (iso: string) => {
+  const parts = tf.formatToParts(new Date(`${iso}T12:00:00Z`));
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? '';
+  const wk = get('weekday');
+  const day = get('day');
+  const mon = get('month');
+  return { wk: en ? wk : wk.replace('.', ''), day, mon: en ? mon : mon.replace('.', '') };
+};
+---
+
+<section id="weather" class="weather-section section-wrap" aria-labelledby="weather-title">
+  <div class="section-marker"><span>05</span><i></i></div>
+  <div class="weather-heading">
+    <p class="eyebrow">{labels.eyebrow}</p>
+    <h2 id="weather-title">{labels.title}<br /><em>{labels.em}</em></h2>
+  </div>
+
+  {
+    w.ok ? (
+      <div class="weather-grid">
+        <div class="weather-now">
+          <p class="weather-now-label">{labels.now}</p>
+          <p class="temp">{w.current.temp}°<span>C</span></p>
+          <p class="cond">{w.current.label.icon} {en ? w.current.label.en : w.current.label.es}</p>
+          <div class="weather-meta">
+            <div><span>{labels.feels}</span><b>{w.current.feels}°</b></div>
+            <div><span>{labels.humidity}</span><b>{w.current.humidity}%</b></div>
+            <div><span>{labels.wind}</span><b>{w.current.wind} {labels.kmh}</b></div>
+          </div>
+          <p class="weather-tip">{w.umbrella ? labels.umbrella : labels.noUmbrella}</p>
+        </div>
+        <div class="weather-forecast">
+          <p class="section-label">{labels.forecast}</p>
+          <div class="weather-days">
+            {w.days.map((d, i) => {
+              const f = fmtWeekday(d.date);
+              return (
+                <div class="weather-day">
+                  <p class="wd">{i === 0 ? labels.today : `${f.wk}`}</p>
+                  <p class="wdate">{f.day} {f.mon}</p>
+                  <p class="wicon" aria-hidden="true">{d.label.icon}</p>
+                  <p class="wt"><b>{d.max}°</b> {d.min}°</p>
+                  <p class="wp">{labels.precip} {d.precipProb}%</p>
+                </div>
+              );
+            })}
+          </div>
+          <p class="weather-updated">{labels.updated}</p>
+        </div>
+      </div>
+    ) : (
+      <p class="weather-unavailable">{en ? 'Live conditions are not available right now; check the local forecast before you head out.' : 'Las condiciones en vivo no están disponibles ahora; consultá el pronóstico local antes de salir.'}</p>
+    )
+  }
+</section>
