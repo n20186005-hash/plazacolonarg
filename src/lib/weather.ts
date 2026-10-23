@@ -153,11 +153,11 @@ function buildAdvice(
     add(out.items, es ? 'Impermeable (el paraguas largo se complica con viento)' : 'Raincoat (a long umbrella is awkward in wind)');
   } else if (rl === 'thunder') {
     add(out.risks, es
-      ? 'Tormenta eléctrica: no te refugies bajo árboles ni en zona abierta; los paseos se suspenden.'
-      : 'Thunderstorm: don’t shelter under trees or in open ground; walks pause.');
+      ? 'Tormenta eléctrica: no te refugies bajo árboles ni en zona abierta; buscá un lugar seguro y consultá los avisos oficiales.'
+      : 'Thunderstorm: don’t shelter under trees or in open ground; seek a safe place and check official notices.');
     add(out.activity, es
-      ? 'Las actividades al aire libre cierran con la tormenta.'
-      : 'Outdoor activities pause during storms.');
+      ? 'Postergá el paseo expuesto durante la tormenta y consultá los avisos oficiales del lugar.'
+      : 'Postpone exposed walks during the storm and check official local notices.');
     add(out.items, es ? 'Impermeable' : 'Raincoat');
   }
 
@@ -190,8 +190,8 @@ function buildAdvice(
   // 风力
   if (windLvl >= 7) {
     add(out.risks, es
-      ? 'Viento fuerte: alejate de carteles y ramas; los tramos al aire libre se cierran.'
-      : 'Strong wind: keep away from signs and branches; open stretches close.');
+      ? 'Viento fuerte: alejate de carteles y ramas; postergá los tramos expuestos y consultá los avisos locales.'
+      : 'Strong wind: keep away from signs and branches; postpone exposed stretches and check local notices.');
     add(out.items, es ? 'Prenda de abrigo ceñida' : 'Fitted outer layer');
   } else if (windLvl >= 5) {
     add(out.outfit, es
