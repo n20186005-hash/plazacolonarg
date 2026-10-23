@@ -1,0 +1,8 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+const en = Astro.url.pathname.startsWith('/en/');
+Astro.response.status = 404;
+---
+<BaseLayout title={en ? 'Page not found | Plaza Colón Córdoba' : 'Página no encontrada | Plaza Colón Córdoba'} description={en ? 'This address is unavailable. Return to the Plaza Colón visitor guide.' : 'Esta dirección no está disponible. Volvé a la guía de Plaza Colón.'} locale={en ? 'en' : 'es'} noindex={true}>
+<main id="content" class="policy-main"><article class="policy-article"><h1>{en ? 'Page not found' : 'Página no encontrada'}</h1><p>{en ? 'This address is unavailable.' : 'Esta dirección no está disponible.'}</p><a href={en ? '/en/' : '/'}>{en ? 'Return to the guide' : 'Volver a la guía'}</a></article></main>
+</BaseLayout>

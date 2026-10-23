@@ -1,128 +1,34 @@
 ---
-/**
- * Design reminder — Herbario de hierro: airy botanical editorial layout, antique bronze details,
- * deep ink text, and real Plaza Colón photography as the dominant visual material.
- */
 import '../styles/global.css';
 import { SITE_NAME, SITE_NAME_EN } from '../data/site';
-
-interface Props {
-  title: string;
-  description: string;
-  locale?: 'es' | 'en';
-  faqItems?: Array<{ question: string; answer: string }>;
-}
-
-const { title, description, locale = 'es', faqItems = [] } = Astro.props;
-const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
-const siteBase = Astro.site ?? new URL('https://plazacolonarg.com');
-const attractionId = new URL('#attraction', siteBase).href;
-// Bilingual alternates derived from the current path: Spanish is the default (x-default).
+interface Props { title: string; description: string; locale?: 'es' | 'en'; faqItems?: Array<{question:string;answer:string}>; attraction?: boolean; noindex?: boolean; }
+const { title, description, locale = 'es', faqItems = [], attraction = false, noindex = false } = Astro.props;
+const site = Astro.site ?? new URL('https://plazacolonarg.com');
 const path = Astro.url.pathname;
-const esPath = path.startsWith('/en/') ? (path.slice(3) || '/') : path;
-const enPath = path === '/' ? '/en/' : (path.startsWith('/en/') ? path : '/en' + path);
-const esUrl = new URL(esPath, siteBase).href;
-const enUrl = new URL(enPath, siteBase).href;
-const isEnglish = locale === 'en';
-const attractionSchema = {
-  '@context': 'https://schema.org',
-  '@type': ['TouristAttraction', 'LandmarksOrHistoricalBuildings', 'Place'],
-  name: 'Plaza Colón (Alberdi, Córdoba, Argentina)',
-  alternateName: ['Plaza Colón Córdoba', 'Plaza Colón de Alberdi'],
-  description: isEnglish
-    ? 'Plaza Colón in the Alberdi neighbourhood of Córdoba, Argentina (Av. Colón, X5000EPZ, coordinates -31.4092824, -64.1957511). Public square opened 1888 as Plaza Juárez Celman, renamed 1892. Distinctive Parisian cast-iron two-tier fountain and 1955 Mini Botanical Garden design by architect Carlos David. Not to be confused with the homonymous Plaza de Colón in Madrid (Spain), Plaza Colón in San Juan, Puerto Rico or Plaza Colón in Mar del Plata, Buenos Aires, Argentina.'
-    : 'Plaza Colón en el barrio Alberdi de Córdoba, Argentina (Av. Colón, X5000EPZ, coordenadas -31.4092824, -64.1957511). Plaza pública inaugurada en 1888 como Plaza Juárez Celman y renombrada en 1892. Distintiva fuente parisina de hierro fundido de dos bandejas y diseño de Mini Jardín Botánico de 1955 del arquitecto Carlos David. No confundir con las plazas homónimas de Madrid (España), San Juan (Puerto Rico) ni Mar del Plata (Buenos Aires, Argentina).',
-  disambiguatingDescription: isEnglish
-    ? 'Distinguished internationally by its inland Alberdi neighbourhood setting, Parisian cast-iron fountain and not being a Colón stone monument, giant national-flag plaza or walled-city gateway plaza.'
-    : 'Se distingue internacionalmente por su emplazamiento en el barrio Alberdi del interior urbano, su fuente parisina de hierro fundido y por no ser un monumento pétreo a Colón, una plaza de bandera nacional gigante ni una plaza-puerta de ciudad amurallada.',
-  address: {
-    '@type': 'PostalAddress',
-    streetAddress: 'Av. Colón',
-    postalCode: 'X5000EPZ',
-    addressLocality: 'Córdoba',
-    addressRegion: 'Córdoba',
-    addressCountry: 'AR',
-  },
-  geo: { '@type': 'GeoCoordinates', latitude: -31.4092824, longitude: -64.1957511, elevation: 430 },
-  containedInPlace: [
-    { '@type': 'Neighborhood', name: 'Alberdi, Córdoba' },
-    { '@type': 'City', name: 'Córdoba, Argentina' },
-  ],
-  hasMap: 'https://maps.app.goo.gl/VFVHXX42gPEcgbg76',
-  sameAs: ['https://maps.app.goo.gl/VFVHXX42gPEcgbg76', 'https://turismo.cordoba.gob.ar/plaza-colon/'],
-  openingHours: 'Mo-Su 00:00-23:59',
-  aggregateRating: { '@type': 'AggregateRating', ratingValue: '4.1', reviewCount: '18827', bestRating: '5' },
-  image: ['https://plazacolonarg.com/images/plaza-colon-fuente-atardecer.jpg'],
-  isAccessibleForFree: true,
-  '@id': attractionId,
-  photo: {
-    '@type': 'Photograph',
-    image: '/images/plaza-colon-fuente-atardecer.jpg',
-    caption: isEnglish ? 'Plaza Colón Córdoba cast-iron fountain at dusk.' : 'Fuente de hierro fundido de Plaza Colón Córdoba al atardecer.',
-  },
-  additionalProperty: [
-    { '@type': 'PropertyValue', name: 'distintivo_arquitectonico', value: 'Fuente parisina de dos bandejas en hierro fundido y cuatro farolas de París.' },
-    { '@type': 'PropertyValue', name: 'nombre_anterior', value: 'Plaza Juárez Celman (1888–1892)' },
-    { '@type': 'PropertyValue', name: 'no_es_homonima', value: isEnglish ? 'Not: Plaza de Colón Madrid, Plaza Colón San Juan PR, Plaza Colón Mar del Plata' : 'No es la Plaza de Colón de Madrid, ni Plaza Colón San Juan PR, ni Plaza Colón Mar del Plata.' },
-  ],
-  ...(canonical ? { url: canonical } : {}),
+const canonical = new URL(path, site).href;
+const esPath = path.startsWith('/en/') ? path.slice(3) || '/' : path;
+const enPath = '/en' + esPath;
+const schema = {
+ '@context':'https://schema.org', '@type':'TouristAttraction', '@id': new URL('/#attraction',site).href,
+ name:'Plaza Colón, Córdoba, Argentina', alternateName:'Plaza Colón de Alberdi',
+ description:locale === 'en' ? 'Public square on Av. Colón in Alberdi, Córdoba, Argentina, known for its cast-iron fountain and trees.' : 'Plaza pública sobre Av. Colón en Alberdi, Córdoba, Argentina, conocida por su fuente de hierro fundido y arbolado.',
+ url: new URL(locale === 'en' ? '/en/' : '/', site).href,
+ address:{'@type':'PostalAddress',streetAddress:'Av. Colón',postalCode:'X5000EPZ',addressLocality:'Córdoba',addressRegion:'Córdoba',addressCountry:'AR'},
+ hasMap:'https://maps.app.goo.gl/VFVHXX42gPEcgbg76',
+ image:new URL('/images/plaza-2022.jpg',site).href,
+ sameAs:['https://maps.app.goo.gl/VFVHXX42gPEcgbg76','https://turismo.cordoba.gob.ar/cordoba-a-cielo-abierto-plaza-colon/']
 };
-const faqSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: faqItems.map(({ question, answer }) => ({ '@type': 'Question', name: question, acceptedAnswer: { '@type': 'Answer', text: answer } })),
-};
+const faqSchema = {'@context':'https://schema.org','@type':'FAQPage',mainEntity:faqItems.map(({question,answer})=>({'@type':'Question',name:question,acceptedAnswer:{'@type':'Answer',text:answer}}))};
 ---
-
-<!doctype html>
-<html lang={isEnglish ? 'en' : 'es-AR'}>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content={description} />
-    <meta name="theme-color" content="#17382E" />
-    <meta name="robots" content="index,follow" />
-    {canonical && <link rel="canonical" href={canonical} />}
-    <link rel="alternate" hreflang="es" href={esUrl} />
-    <link rel="alternate" hreflang="en" href={enUrl} />
-    <link rel="alternate" hreflang="x-default" href={esUrl} />
-    <link rel="icon" type="image/svg+xml" sizes="any" href="/favicon.svg" />
-    <link rel="icon" type="image/svg+xml" sizes="16x16" href="/favicon.svg" />
-    <link rel="icon" type="image/svg+xml" sizes="32x32" href="/favicon.svg" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.svg" />
-    <link rel="manifest" href="/site.webmanifest" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:site_name" content={locale === 'en' ? SITE_NAME_EN : SITE_NAME} />
-    {canonical && <meta property="og:url" content={canonical} />}
-    {canonical && <meta property="og:image" content={new URL('/images/plaza-colon-fuente-atardecer.jpg', Astro.site).href} />}
-    {canonical && <meta property="og:image:alt" content={isEnglish ? 'Plaza Colón in Córdoba, Argentina' : 'Plaza Colón en Córdoba, Argentina'} />}
-    <meta name="twitter:card" content="summary_large_image" />
-    <title>{title}</title>
-    <script is:inline>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){window.dataLayer.push(arguments);}
-      const loadAnalytics = () => {
-        if (window.__plazaAnalyticsLoaded || localStorage.getItem('plaza-colon-analytics') !== 'granted') return;
-        window.__plazaAnalyticsLoaded = true;
-        const script = document.createElement('script'); script.async = true; script.src = 'https://www.googletagmanager.com/gtag/js?id=G-HXM22WWPKP'; document.head.appendChild(script);
-        gtag('js', new Date()); gtag('config', 'G-HXM22WWPKP');
-      };
-      loadAnalytics(); window.addEventListener('plaza-consent-updated', loadAnalytics);
-    </script>
-    <script is:inline type="application/ld+json" set:html={JSON.stringify(attractionSchema)}></script>
-    <script is:inline type="application/ld+json" set:html={JSON.stringify(faqSchema)}></script>
-    <script is:inline>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').catch(() => {});
-        });
-      }
-    </script>
-  </head>
-  <body><slot /></body>
-</html>
+<!doctype html><html lang={locale === 'en' ? 'en' : 'es-AR'}><head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="description" content={description} /><meta name="theme-color" content="#17382E" />
+<meta name="robots" content={noindex ? 'noindex,follow' : 'index,follow'} /><link rel="canonical" href={canonical} />
+{!noindex && <><link rel="alternate" hreflang="es" href={new URL(esPath,site).href} /><link rel="alternate" hreflang="en" href={new URL(enPath,site).href} /><link rel="alternate" hreflang="x-default" href={new URL(esPath,site).href} /></>}
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" /><link rel="apple-touch-icon" href="/apple-touch-icon.svg" /><link rel="manifest" href="/site.webmanifest" />
+<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<title>{title}</title><meta property="og:type" content="website" /><meta property="og:title" content={title} /><meta property="og:description" content={description} /><meta property="og:site_name" content={locale === 'en' ? SITE_NAME_EN : SITE_NAME} /><meta property="og:url" content={canonical} /><meta property="og:image" content={new URL('/images/plaza-2022.jpg',site).href} /><meta property="og:image:alt" content={locale === 'en' ? 'Reference photograph of Plaza Colón in Córdoba, 2022' : 'Fotografía de referencia de Plaza Colón en Córdoba, 2022'} /><meta name="twitter:card" content="summary_large_image" />
+<script is:inline src="/analytics-consent.js"></script>
+{attraction && <script is:inline type="application/ld+json" set:html={JSON.stringify(schema)}></script>}
+{faqItems.length > 0 && <script is:inline type="application/ld+json" set:html={JSON.stringify(faqSchema)}></script>}
+<script is:inline>if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));</script>
+</head><body><slot /></body></html>

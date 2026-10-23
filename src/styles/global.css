@@ -404,3 +404,47 @@ h2 { font-family: var(--serif); font-size: clamp(2.8rem, 5vw, 5.3rem); line-heig
   .map-copy { padding: 4rem 1.5rem; } .nearby-columns { margin-top: 2.5rem; } .faq-section { padding: 5rem 1.5rem; } .faq-list summary { font-size: 1.25rem; }
   .site-footer { grid-template-columns: 1fr; padding: 3rem 1.5rem; } .site-footer > p { grid-column: auto; order: 0; } .footer-links { justify-content: flex-start; }   .method-section { padding: 4rem 1.5rem; } .policy-main { padding: 4rem 1.5rem; } .general-grid, .science-points { grid-template-columns: 1fr; } .general-grid article, .science-points article { border-left: 0; border-top: 1px solid var(--line); margin-top: 0 !important; } .general-grid article:first-child, .science-points article:first-child { border-top: 0; }
 }
+
+/* Visitor cards and credits use an independent document flow. */
+.visitor-guide .guide-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin-top: 28px; }
+.visitor-guide .guide-card { min-width: 0; padding: 26px; border: 1px solid rgba(23,56,46,.2); border-radius: 14px; background: #fbf8ef; }
+.visitor-guide .guide-card h3 { font: 400 27px/1.2 'DM Serif Display', Georgia, serif; margin: 0 0 14px; }
+.visitor-guide .guide-card p { line-height: 1.7; }
+.visitor-guide > .section-wrap > h2 { font: 400 clamp(32px,4vw,60px)/1.15 'DM Serif Display',Georgia,serif; margin-bottom: 22px; }
+.photo-source { padding-block: 32px !important; overflow-wrap: anywhere; font-size: 14px; }
+.photo-source h2 { font: 400 26px 'DM Serif Display',Georgia,serif; }
+.weather-source { margin-top: 24px; font-size: 14px; line-height: 1.6; }
+.menu-toggle { display: none; border: 1px solid #17382e; border-radius: 7px; padding: 9px 12px; background: #fbf8ef; color: #17382e; }
+.consent-panel button[aria-pressed="true"] { outline: 3px solid #17382e; outline-offset: 3px; }
+@media(max-width:1100px) {
+ .site-header-expanded { display: flex; flex-wrap: wrap; gap: 12px; padding-block: 10px; }
+ .site-header-expanded .menu-toggle { display: block; margin-left: auto; }
+ .site-header-expanded nav { display: none; }
+ .site-header-expanded nav.is-open { display: flex; width: 100%; order: 4; flex-wrap: wrap; gap: 16px; padding: 12px 0; }
+ .site-header-expanded .header-actions { margin-left: 0; }
+ .visitor-guide .guide-cards { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media(max-width:640px) {
+ .visitor-guide .guide-cards { grid-template-columns: 1fr; }
+ .visitor-guide .hero h1 { font-size: clamp(45px,12vw,70px); }
+ .site-header-expanded .brand { min-width: 0; }
+ .site-header-expanded .brand span { font-size: 18px; }
+ .site-header-expanded .brand i { display: none; }
+ .site-header-expanded .header-map { display: none; }
+ .weather-days { grid-template-columns: repeat(2,minmax(0,1fr)); }
+ .weather-day { min-width: 0; overflow-wrap: anywhere; }
+}
+
+.weather-grid { grid-template-columns: minmax(0,.82fr) minmax(0,1.18fr); }
+.weather-days { grid-template-columns: repeat(7,minmax(0,1fr)); }
+.weather-day { min-width: 0; overflow-wrap: anywhere; }
+.consent-panel > div { display: flex; flex-wrap: wrap; gap: 14px; }
+@media(max-width:1100px) {
+ .weather-grid { grid-template-columns: 1fr; }
+ .weather-days { grid-template-columns: repeat(4,minmax(0,1fr)); }
+}
+@media(max-width:640px) {
+ .visitor-guide .hero { display: block; min-height: 0; padding: 4rem 1.5rem 3rem; }
+ .visitor-guide .hero-plaque { position: relative; inset: auto; margin-top: 2rem; width: max-content; max-width: 100%; }
+ .weather-days { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}

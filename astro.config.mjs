@@ -3,14 +3,16 @@ import cloudflare from '@astrojs/cloudflare';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
-// Set SITE_URL once when the production domain is known. Leaving it empty keeps local builds valid.
-const configuredSite = process.env.SITE_URL?.trim() || undefined;
+// The established production domain is the default canonical site.
+const configuredSite = process.env.SITE_URL?.trim() || 'https://plazacolonarg.com';
 
 export default defineConfig({
   site: configuredSite,
   output: 'server',
-  adapter: cloudflare(),
-  integrations: configuredSite ? [sitemap()] : [],
+  adapter: cloudflare({ imageService: 'passthrough' }),
+  session: false,
+  integrations: [sitemap({ filter: (page) => !new URL(page).pathname.includes('/404') })],
+  trailingSlash: 'always',
   vite: {
     plugins: [tailwindcss()],
     optimizeDeps: {

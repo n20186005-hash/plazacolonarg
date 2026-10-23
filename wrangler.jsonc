@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "plaza-colon-guia",
+  "name": "plazacolonarg",
   "assets": {
     "directory": "./dist"
   },

@@ -2,8 +2,8 @@
  * Pages: network-first with offline cache fallback.
  * Static assets: cache-first for fast repeat visits.
  */
-const PAGE_CACHE = 'plaza-colon-pages-v1';
-const ASSET_CACHE = 'plaza-colon-assets-v1';
+const PAGE_CACHE = 'plaza-colon-pages-v2';
+const ASSET_CACHE = 'plaza-colon-assets-v2';
 const ASSET_RE = /\/(_astro|images)\/|\.(?:css|js|svg|woff2?|png|jpe?g|webp|avif)$/;
 
 self.addEventListener('install', () => self.skipWaiting());
@@ -30,10 +30,10 @@ self.addEventListener('fetch', (event) => {
       fetch(request)
         .then((response) => {
           const copy = response.clone();
-          caches.open(PAGE_CACHE).then((cache) => cache.put(request, copy));
+          if (response.ok) caches.open(PAGE_CACHE).then((cache) => cache.put(request, copy));
           return response;
         })
-        .catch(() => caches.match(request).then((cached) => cached || caches.match('/')))
+        .catch(() => caches.match(request).then((cached) => cached || new Response('Offline / Sin conexión. Retry / Volvé a intentarlo.', { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } })))
     );
     return;
   }

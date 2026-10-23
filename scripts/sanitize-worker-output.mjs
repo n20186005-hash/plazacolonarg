@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const outputDirectory = fileURLToPath(new URL('../dist/', import.meta.url));
+const projectDirectory = fileURLToPath(new URL('../', import.meta.url)).replace(/\/$/, '');
 const textExtensions = new Set(['.js', '.mjs', '.json', '.html', '.xml', '.css', '.txt']);
 const replacements = new Map([
   ['example.com', 'not-a-real-host.invalid'],
@@ -19,7 +20,13 @@ async function visit(directory) {
     }
     const extension = entry.name.slice(entry.name.lastIndexOf('.'));
     if (!textExtensions.has(extension)) continue;
+    // Wrangler consumes its generated local config paths during deployment;
+    // that configuration is outside the served assets and JavaScript bundle.
+    if (entry.name === 'wrangler.json') continue;
     let contents = await readFile(file, 'utf8');
+    // Keep compiler metadata and manifest paths mutually consistent without
+    // publishing the machine-specific build root in Worker JavaScript.
+    contents = contents.replaceAll(projectDirectory, '/site');
     for (const [from, to] of replacements) contents = contents.replaceAll(from, to);
     if (forbidden.test(contents)) throw new Error(`Forbidden placeholder content remains in ${file}`);
     await writeFile(file, contents);

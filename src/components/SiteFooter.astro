@@ -8,9 +8,10 @@ const base = en ? '/en' : '';
 <footer class="site-footer site-footer-expanded">
   <div class="footer-brand"><img src="/favicon.svg" alt="" width="58" height="58" /><span>Plaza Colón<br /><i>{en ? 'Public-interest guide' : 'Guía de interés público'}</i></span></div>
   <div class="footer-statement">
-    <p>{en ? 'This is an independent, non-profit visitor information project. It has no affiliation with public authorities, the place manager, or commercial operators.' : 'Este es un proyecto independiente y sin fines de lucro de información para visitantes. No tiene vínculo con autoridades públicas, administradores del lugar ni operadores comerciales.'}</p>
-    <p>{en ? 'Place information is checked against public materials from Municipalidad de Córdoba, Turismo Córdoba and public mobility channels. No business recommendations are included.' : 'La información se contrasta con materiales públicos de la Municipalidad de Córdoba, Turismo Córdoba y canales públicos de movilidad. No incluye recomendaciones comerciales.'}</p>
+    <p>{en ? 'This is an independent visitor guide. It does not represent the municipal tourism sources cited.' : 'Este es un proyecto independiente de información para visitantes. No representa a las fuentes de turismo municipal citadas.'}</p>
+    <p>{en ? 'Place information is checked against public materials from Municipalidad de Córdoba, Turismo Córdoba. Check individual operators for current transport information.' : 'La información se contrasta con materiales públicos de la Municipalidad de Córdoba, Turismo Córdoba. Consultá a cada operador por la información vigente del transporte.'}</p>
     <p>{en ? 'Photographs remain the property of their respective authors or rightsholders. © 2026 Plaza Colón Visitor Guide.' : 'Las fotografías pertenecen a sus respectivos autores o titulares de derechos. © 2026 Guía de visita Plaza Colón.'}</p>
   </div>
-  <div class="footer-links"><a href={`${base}/privacy-policy/`}>{en ? 'Privacy' : 'Privacidad'}</a><a href={`${base}/terms-of-service/`}>{en ? 'Terms' : 'Términos'}</a><a href={`${base}/cookie-settings/`}>{en ? 'Cookies' : 'Cookies'}</a><a href="#top">{en ? 'Top ↑' : 'Arriba ↑'}</a></div>
+  <p><a href={`${base}/#photo-credits`}>{en ? 'Photograph sources and licences' : 'Fuentes y licencias de fotografías'}</a></p>
+  <div class="footer-links"><a href={`${base}/privacy-policy/`}>{en ? 'Privacy' : 'Privacidad'}</a><a href={`${base}/terms-of-service/`}>{en ? 'Terms' : 'Términos'}</a><a href={`${base}/cookie-settings/`}>{en ? 'Cookies' : 'Cookies'}</a><a href={`${base}/#top`}>{en ? 'Top ↑' : 'Arriba ↑'}</a></div>
 </footer>

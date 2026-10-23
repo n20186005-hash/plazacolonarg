@@ -2,7 +2,7 @@
 /**
  * Server-rendered current conditions + 7-day outlook for Plaza Colón, Córdoba.
  * Data is fetched on the server (src/lib/weather.ts) and cached; the visitor only
- * sees practical, data-driven guidance — no data-source wording appears in the UI.
+ * sees practical model-based guidance with source and query time.
  */
 import { getWeather } from '../lib/weather';
 
@@ -27,8 +27,8 @@ const labels = en
       feels: 'Feels like',
       humidity: 'Humidity',
       wind: 'Wind',
-      precip: 'Chance of rain',
-      uv: 'UV',
+      precip: 'Rain today',
+      uv: 'UV maximum today',
       riskTitle: 'Heads-up',
       forecast: 'Next 7 days',
       today: 'Today',
@@ -36,7 +36,7 @@ const labels = en
       outfit: 'What to wear',
       activity: 'How to make the most of it',
       items: 'Bring with you',
-      updated: 'Refreshed at the moment of your visit.',
+      updated: 'Query time (Córdoba):',
       unavailable: 'Live conditions are not available right now; check the local forecast before you head out.',
     }
   : {
@@ -47,8 +47,8 @@ const labels = en
       feels: 'Sensación',
       humidity: 'Humedad',
       wind: 'Viento',
-      precip: 'Prob. de lluvia',
-      uv: 'UV',
+      precip: 'Lluvia hoy',
+      uv: 'UV máximo de hoy',
       riskTitle: 'Aviso',
       forecast: 'Próximos 7 días',
       today: 'Hoy',
@@ -56,7 +56,7 @@ const labels = en
       outfit: 'Para vestir',
       activity: 'Cómo aprovechar',
       items: 'Llevá con vos',
-      updated: 'Actualizado al momento de tu visita.',
+      updated: 'Hora de consulta (Córdoba):',
       unavailable: 'Las condiciones en vivo no están disponibles ahora; consultá el pronóstico local antes de salir.',
     };
 
@@ -140,7 +140,7 @@ const fmtWeekday = (iso: string) => {
                 )}
               </div>
             )}
-            <p class="weather-updated">{labels.updated}</p>
+            <p class="weather-updated">{labels.updated} {w.updatedAt && new Intl.DateTimeFormat(en ? 'en-GB' : 'es-AR', {dateStyle:'short', timeStyle:'short', timeZone:'America/Argentina/Buenos_Aires'}).format(new Date(w.updatedAt))}. {en ? 'The response may be cached for ten minutes.' : 'La respuesta puede reutilizarse durante diez minutos.'}</p>
           </div>
         </div>
       </>
@@ -148,4 +148,5 @@ const fmtWeekday = (iso: string) => {
       <p class="weather-unavailable">{labels.unavailable}</p>
     )
   }
+  <p class="weather-source">{en ? 'Model estimate for the square’s coordinates, not a measurement inside it. Source:' : 'Estimación para las coordenadas de la plaza, no una medición dentro del paseo. Fuente:'} <a href="https://open-meteo.com/">Open-Meteo</a> · <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. <a href="https://www.smn.gob.ar/">{en ? 'Check official weather warnings' : 'Consultar alertas oficiales'}</a>.</p>
 </section>

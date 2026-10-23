@@ -1,7 +1,7 @@
 // Server-side current conditions + 7-day outlook for Plaza Colón, Córdoba.
 // Data: Open-Meteo (no key required). Coordinates are the plaza's published point.
-// Results are cached in-module and via the edge (cf.cacheTtl) so the visitor
-// always sees fresh-enough values without re-hitting the upstream on every load.
+// Results are cached by locale for ten minutes. The response timestamp is
+// shown separately from the model estimate; failures have a shorter cache.
 
 const LAT = -31.4092824;
 const LON = -64.1957511;
@@ -49,6 +49,7 @@ export interface WeatherResult {
   days: WeatherDay[];
   advice?: WeatherAdvice;
   error?: string;
+  updatedAt?: string;
 }
 
 // WMO weather interpretation codes → bilingual, human label + emoji icon.
@@ -230,11 +231,11 @@ function buildAdvice(
   return out;
 }
 
-let cache: { at: number; value: WeatherResult } | null = null;
+const cache = new Map<'es' | 'en', { at: number; value: WeatherResult }>();
 const TTL = 10 * 60 * 1000;
 
 function buildUrl(): string {
-  const cur = 'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,precipitation_probability,uv_index';
+  const cur = 'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m';
   const daily = 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max,wind_speed_10m_max';
   const p = new URLSearchParams({
     latitude: String(LAT),
@@ -249,7 +250,8 @@ function buildUrl(): string {
 }
 
 export async function getWeather(locale: 'es' | 'en' = 'es'): Promise<WeatherResult> {
-  if (cache && Date.now() - cache.at < TTL) return cache.value;
+  const saved = cache.get(locale);
+  if (saved && Date.now() - saved.at < (saved.value.ok ? TTL : 60000)) return saved.value;
 
   try {
     const opts: any = {
@@ -261,14 +263,20 @@ export async function getWeather(locale: 'es' | 'en' = 'es'): Promise<WeatherRes
     const res = await fetch(buildUrl(), opts);
     if (!res.ok) throw new Error(`upstream ${res.status}`);
     const d: any = await res.json();
+    const currentFields = ['temperature_2m','relative_humidity_2m','apparent_temperature','weather_code','wind_speed_10m'];
+    const dailyFields = ['temperature_2m_max','temperature_2m_min','precipitation_probability_max','uv_index_max','wind_speed_10m_max','weather_code'];
+    if (!currentFields.every((key) => typeof d?.current?.[key] === 'number' && Number.isFinite(d.current[key]))) throw new Error('invalid current weather');
+    const dates = d?.daily?.time;
+    if (!Array.isArray(dates) || dates.length === 0 || !dates.every((date) => typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date))) throw new Error('invalid forecast dates');
+    if (!dailyFields.every((key) => Array.isArray(d.daily[key]) && d.daily[key].length === dates.length && d.daily[key].every((value) => typeof value === 'number' && Number.isFinite(value)))) throw new Error('invalid forecast values');
 
     const cur: WeatherCurrent = {
       temp: Math.round(d.current.temperature_2m),
       feels: Math.round(d.current.apparent_temperature),
       humidity: Math.round(d.current.relative_humidity_2m),
       wind: d.current.wind_speed_10m,
-      precipProb: Math.round(d.current.precipitation_probability ?? 0),
-      uv: Math.round(d.current.uv_index ?? 0),
+      precipProb: Math.round(d.daily.precipitation_probability_max[0]),
+      uv: Math.round(d.daily.uv_index_max[0]),
       code: d.current.weather_code,
       label: describe(d.current.weather_code),
     };
@@ -287,16 +295,17 @@ export async function getWeather(locale: 'es' | 'en' = 'es'): Promise<WeatherRes
     const today = days[0];
     const result: WeatherResult = {
       ok: true,
+      updatedAt: new Date().toISOString(),
       current: cur,
       today,
       days,
       advice: buildAdvice(locale === 'es', cur, today),
     };
-    cache = { at: Date.now(), value: result };
+    cache.set(locale, { at: Date.now(), value: result });
     return result;
   } catch (e) {
     const fallback: WeatherResult = { ok: false, days: [], error: e instanceof Error ? e.message : 'weather error' };
-    cache = { at: Date.now(), value: fallback };
+    cache.set(locale, { at: Date.now(), value: fallback });
     return fallback;
   }
 }

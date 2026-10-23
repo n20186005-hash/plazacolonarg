@@ -4,6 +4,8 @@ interface Props { locale: 'es' | 'en'; }
 const { locale } = Astro.props;
 const en = locale === 'en';
 const home = en ? '/en/' : '/';
+const current = Astro.url.pathname;
+const alternate = en ? current.slice(3) || '/' : '/en' + current;
 const nav = en
   ? [['#history', 'History'], ['#visit', 'Visit'], ['#weather', 'Weather'], ['#transport', 'Getting here'], ['#services', 'Services'], ['#nearby', 'Nearby'], ['#faq', 'FAQ']]
   : [['#historia', 'Historia'], ['#visita', 'Visita'], ['#weather', 'Clima'], ['#transporte', 'Cómo llegar'], ['#servicios', 'Servicios'], ['#alrededores', 'Alrededores'], ['#faq', 'Preguntas']];
@@ -14,6 +16,11 @@ const nav = en
     <img src="/favicon.svg" alt="" width="54" height="54" />
     <span><b>Plaza</b> Colón <i>· Alberdi</i></span>
   </a>
-  <nav aria-label={en ? 'Main navigation' : 'Navegación principal'}>{nav.map(([href, label]) => <a href={href}>{label}</a>)}</nav>
-  <div class="header-actions"><a class="locale-link" href={en ? '/' : '/en/'} lang={en ? 'es' : 'en'}>{en ? 'ES' : 'EN'}</a><a class="header-map" href="#map">{en ? 'Map' : 'Mapa'} <span aria-hidden="true">↘</span></a></div>
+  <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="guide-navigation">{en ? 'Menu' : 'Menú'}</button>
+  <nav id="guide-navigation" aria-label={en ? 'Main navigation' : 'Navegación principal'}>{nav.map(([href, label]) => <a href={home + href}>{label}</a>)}</nav>
+  <div class="header-actions"><a class="locale-link" href={alternate} lang={en ? 'es' : 'en'}>{en ? 'ES' : 'EN'}</a><a class="header-map" href={home + '#map'}>{en ? 'Map' : 'Mapa'} <span aria-hidden="true">↘</span></a></div>
 </header>
+
+<script is:inline>
+(() => { const button = document.querySelector('.menu-toggle'); const nav = document.querySelector('#guide-navigation'); button?.addEventListener('click', () => { const open = button.getAttribute('aria-expanded') !== 'true'; button.setAttribute('aria-expanded', String(open)); nav?.classList.toggle('is-open', open); }); })();
+</script>
