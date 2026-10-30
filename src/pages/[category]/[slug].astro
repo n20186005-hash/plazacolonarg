@@ -1,0 +1,15 @@
+---
+import TopicPage from '../../components/TopicPage.astro';
+import { TOPICS } from '../../lib/topics';
+
+export async function getStaticPaths() {
+  return TOPICS.map((t) => ({
+    params: { category: t.category, slug: t.slug },
+    props: { topic: t },
+  }));
+}
+
+const { topic } = Astro.props;
+---
+
+<TopicPage topic={topic} />

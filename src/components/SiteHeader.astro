@@ -8,7 +8,7 @@ const current = Astro.url.pathname;
 const alternate = en ? current.slice(3) || '/' : '/en' + current;
 const nav = en
   ? [['#history', 'History'], ['#visit', 'Visit'], ['#weather', 'Weather'], ['#transport', 'Getting here'], ['#services', 'Services'], ['#nearby', 'Nearby'], ['#faq', 'FAQ']]
-  : [['#historia', 'Historia'], ['#visita', 'Visita'], ['#weather', 'Clima'], ['#transporte', 'Cómo llegar'], ['#servicios', 'Servicios'], ['#alrededores', 'Alrededores'], ['#faq', 'Preguntas']];
+  : [['#historia', 'Historia'], ['#visita', 'Visita'], ['#weather', 'Clima'], ['#transporte', 'Cómo llegar'], ['#servicios', 'Servicios'], ['#alrededores', 'Alrededores'], ['#temas', 'Temas'], ['#faq', 'Preguntas']];
 ---
 <a class="skip-link" href="#content">{en ? 'Skip to content' : 'Saltar al contenido'}</a>
 <header class="site-header site-header-expanded">

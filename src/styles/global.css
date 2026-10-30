@@ -448,3 +448,48 @@ h2 { font-family: var(--serif); font-size: clamp(2.8rem, 5vw, 5.3rem); line-heig
  .visitor-guide .hero-plaque { position: relative; inset: auto; margin-top: 2rem; width: max-content; max-width: 100%; }
  .weather-days { grid-template-columns: repeat(2,minmax(0,1fr)); }
 }
+
+/* ── Topic (long-tail) pages ─────────────────────────────── */
+.topic-page { max-width: 980px; margin: 0 auto; }
+.topic-page .breadcrumb { color: var(--ink-soft); font-size: .82rem; letter-spacing: .02em; margin-bottom: 1.8rem; }
+.topic-page .breadcrumb a { border-bottom: 1px solid transparent; color: var(--bronze-deep); }
+.topic-page .breadcrumb a:hover { border-color: var(--bronze); }
+.topic-page .breadcrumb span { margin: 0 .5rem; }
+.topic-page .breadcrumb span[aria-current] { color: var(--bronze); }
+.topic-page h1 { font: 400 clamp(44px, 6vw, 76px)/1.04 'DM Serif Display', Georgia, serif; margin-bottom: 1.4rem; }
+.topic-page > section { margin-top: 3rem; }
+.topic-page > section > h2 { font: 400 clamp(30px, 4vw, 46px)/1.12 'DM Serif Display', Georgia, serif; margin-bottom: 1.1rem; }
+.topic-page > section p { color: var(--ink-soft); font-size: 1.05rem; line-height: 1.8; max-width: 720px; }
+.topic-page > section p + p { margin-top: 1rem; }
+.topic-facts { border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(2, 1fr); margin: 1.8rem 0 0; }
+.topic-facts > div { border-bottom: 1px solid var(--line); padding: 1rem 0; }
+.topic-facts dt { color: var(--bronze); font-size: .64rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+.topic-facts dd { font-family: var(--serif); font-size: 1.3rem; margin: .3rem 0 0; }
+.topic-page ul.bullets { border-top: 1px solid var(--line); list-style: none; margin: 1.2rem 0 0; padding: 0; }
+.topic-page ul.bullets li { border-bottom: 1px solid var(--line); color: var(--ink-soft); font-size: 1.02rem; line-height: 1.7; padding: .8rem 0 .8rem 1.4rem; position: relative; }
+.topic-page ul.bullets li:before { color: var(--bronze); content: '—'; left: 0; position: absolute; }
+.topic-page .faq-list details p { font-size: .98rem; }
+.related-topics { background: var(--paper-deep); border-top: 1px solid var(--line); margin-top: 3.5rem; padding: 2.8rem 2.5rem; }
+.related-topics h2 { font: 400 clamp(28px, 3.6vw, 40px)/1.1 'DM Serif Display', Georgia, serif; margin-bottom: 1.4rem; }
+.related-topics ul { display: grid; gap: .7rem; grid-template-columns: repeat(2, 1fr); list-style: none; margin: 0; padding: 0; }
+.related-topics a { border-bottom: 1px solid currentColor; color: var(--bronze-deep); font-size: .92rem; font-weight: 800; }
+.related-topics a:hover { color: var(--bronze); }
+.source-note { border-top: 1px solid var(--line); margin-top: 3.5rem; padding-top: 1.6rem; }
+.source-note h2 { font: 400 clamp(22px, 2.6vw, 30px)/1.15 'DM Serif Display', Georgia, serif; margin-bottom: .9rem; }
+.source-note p { color: var(--ink-soft); font-size: .92rem; line-height: 1.7; max-width: 700px; }
+.source-note a { border-bottom: 1px solid currentColor; color: var(--bronze-deep); }
+@media (max-width: 640px) {
+ .topic-facts, .related-topics ul { grid-template-columns: 1fr; }
+ .related-topics { padding: 2.2rem 1.5rem; }
+}
+
+/* ── Homepage topic cluster ─────────────────────────────── */
+.topic-groups { display: grid; gap: 2.2rem; grid-template-columns: repeat(2, 1fr); margin-top: 2.8rem; }
+.topic-group h3 { font: 400 1.7rem/1.1 'DM Serif Display', Georgia, serif; margin: 0 0 .9rem; color: var(--ink); }
+.topic-group ul { border-top: 1px solid var(--line); list-style: none; margin: 0; padding: 0; }
+.topic-group li { border-bottom: 1px solid var(--line); padding: .75rem 0; }
+.topic-group a { border-bottom: 1px solid transparent; color: var(--bronze-deep); font-size: .93rem; font-weight: 700; }
+.topic-group a:hover { border-color: var(--bronze); }
+@media (max-width: 640px) {
+ .topic-groups { grid-template-columns: 1fr; gap: 1.6rem; }
+}

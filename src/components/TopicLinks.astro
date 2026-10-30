@@ -1,0 +1,39 @@
+---
+import { topicsByCategory } from '../lib/topics';
+
+interface Props {
+  locale?: 'es' | 'en';
+}
+const { locale = 'es' } = Astro.props;
+// New topic pages are Spanish-only for now; only show the cluster on the Spanish homepage.
+const groups = locale === 'es' ? topicsByCategory() : [];
+---
+
+{
+  groups.length > 0 && (
+    <section class="section-wrap" id="temas">
+      <div class="planner-heading" style="margin-left:0;max-width:760px">
+        <p class="eyebrow">Guía de temas</p>
+        <h2>Temas de Plaza Colón y Alberdi</h2>
+        <p class="lead">
+          Profundizá en el transporte, la historia, los alrededores, dónde comer y las rutas con
+          estas guías independientes sobre la plaza y el barrio.
+        </p>
+      </div>
+      <div class="topic-groups">
+        {groups.map((g) => (
+          <div class="topic-group">
+            <h3>{g.label}</h3>
+            <ul>
+              {g.items.map((t) => (
+                <li>
+                  <a href={`/${t.category}/${t.slug}/`}>{t.title}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}

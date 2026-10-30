@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteHeader from './SiteHeader.astro';
 import SiteFooter from './SiteFooter.astro';
+import TopicLinks from './TopicLinks.astro';
 import WeatherSection from './WeatherSection.astro';
 interface Props { locale: 'es' | 'en'; }
 const { locale } = Astro.props;
@@ -10,7 +11,7 @@ const source = 'https://turismo.cordoba.gob.ar/cordoba-a-cielo-abierto-plaza-col
 const t = en ? {
  title: 'Plaza Colón Córdoba, Argentina: location and visitor guide', description: 'Find Plaza Colón on Av. Colón in Alberdi, Córdoba, Argentina. Map, iron fountain, history, weather and practical guidance for your visit.',
  eyebrow: 'Alberdi · Córdoba, Argentina', intro: 'Find the cast-iron fountain, trees and neighbourhood life of Plaza Colón on Av. Colón. This guide covers the square in Córdoba, Argentina.', plan: 'Plan your visit', map: 'Location and map', rename: 'Renamed', former: 'Formerly Plaza Juárez Celman',
- facts: [['Location', 'Av. Colón · Alberdi'], ['Visit', 'Outdoor public square'], ['Suggested pace', '45–75 min · editorial suggestion'], ['Google Maps', '4.1 / 5 · 18,870 reviews']],
+ facts: [['Location', 'Av. Colón · Alberdi'], ['Visit', 'Outdoor public square'], ['Suggested pace', '45–75 min · editorial suggestion'], ['Google Maps', '4.1 / 5 · 18,879 reviews']],
  history: 'A square shaped by iron and trees', historyIntro: 'Municipal tourism describes the former Plaza Juárez Celman, renamed Plaza Colón in 1892. The cast-iron fountain and surrounding sculptures are central to its heritage story.',
  timeline: [['Late 19th century', 'The square began under the name Juárez Celman, during the growth of Alberdi.'], ['1892', 'It adopted the name Plaza Colón.'], ['1950s', 'Architect Carlos David remodelled the landscape and the coloured-tile fontanas.'], ['Reported restoration', 'Municipal tourism describes recovered ironwork, planting and recreation areas. Current condition and access should be checked on arrival.']],
  botTitle: 'Look beyond the fountain', botText: 'The municipal account names white ash, linden, American red oak, tipu trees and pindo palms. Notice how planting, paths and ironwork form one landscape; do not treat a historical photograph as a current condition report.',
@@ -27,7 +28,7 @@ const t = en ? {
 } : {
  title: 'Plaza Colón Córdoba: ubicación, mapa y guía de visita', description: 'Ubicá Plaza Colón sobre Av. Colón en Alberdi, Córdoba, Argentina. Mapa, fuente de hierro, historia, clima y orientación para preparar el paseo.',
  eyebrow: 'Alberdi · Córdoba, Argentina', intro: 'Encontrá la fuente de hierro, los árboles y la vida barrial de Plaza Colón sobre Av. Colón. Esta guía trata de la plaza de Córdoba, Argentina.', plan: 'Planificar la visita', map: 'Ubicación y mapa', rename: 'Nombre actual desde', former: 'Antes Plaza Juárez Celman',
- facts: [['Ubicación', 'Av. Colón · Alberdi'], ['Visita', 'Plaza pública al aire libre'], ['Ritmo sugerido', '45–75 min · propuesta de la guía'], ['Google Maps', '4,1 / 5 · 18.870 reseñas']],
+ facts: [['Ubicación', 'Av. Colón · Alberdi'], ['Visita', 'Plaza pública al aire libre'], ['Ritmo sugerido', '45–75 min · propuesta de la guía'], ['Google Maps', '4,1 / 5 · 18.879 reseñas']],
  history: 'Una plaza entre hierro y árboles', historyIntro: 'Turismo municipal describe la antigua Plaza Juárez Celman, rebautizada Plaza Colón en 1892. La fuente de hierro fundido y las esculturas de su entorno forman el núcleo de su historia patrimonial.',
  timeline: [['Fines del siglo XIX', 'La plaza comenzó con el nombre Juárez Celman durante el crecimiento de Alberdi.'], ['1892', 'Adoptó el nombre Plaza Colón.'], ['Década de 1950', 'El arquitecto Carlos David remodeló el paisaje y las fontanas de venecitas de colores.'], ['Recuperación documentada', 'Turismo municipal describe la recuperación de piezas de hierro, plantación y sectores recreativos. Comprobá su estado y acceso actuales al llegar.']],
  botTitle: 'Mirar más allá de la fuente', botText: 'La descripción municipal menciona fresnos blancos, tilos, robles rojos americanos, tipas y palmeras pindó. Observá la relación entre vegetación, senderos y metalurgia; una fotografía histórica no acredita el estado del día.',
@@ -58,6 +59,7 @@ const faqItems = t.faq.map(([question,answer]) => ({question,answer}));
     <section id={ids.transport} class="section-wrap"><h2>{t.transportTitle}</h2><p class="lead">{t.transportText}</p><div class="guide-cards">{t.transport.map(([title,text]) => <article class="guide-card"><h3>{title}</h3><p>{text}</p></article>)}</div></section>
     <section id={ids.services} class="section-wrap"><h2>{t.servicesTitle}</h2><div class="guide-cards">{t.services.map(([title,text]) => <article class="guide-card"><h3>{title}</h3><p>{text}</p></article>)}</div></section>
     <section id={ids.nearby} class="section-wrap"><h2>{t.nearbyTitle}</h2><p>{t.nearbyIntro}</p><div class="guide-cards">{t.nearby.map(([title,text]) => <article class="guide-card"><h3>{title}</h3><p>{text}</p><a class="inline-link" href={source}>{en ? 'Municipal neighbourhood account' : 'Relato barrial municipal'} ↗</a></article>)}</div></section>
+    <TopicLinks locale={locale} />
     <section id="map" class="map-section"><div class="map-copy"><p class="eyebrow light">{t.map}</p><h2>Plaza Colón<br /><em>Córdoba, Argentina</em></h2><p>Av. Colón · X5000EPZ<br />Alberdi · Córdoba</p><a class="button button-bronze" href="https://maps.app.goo.gl/VFVHXX42gPEcgbg76">{en ? 'Open Google Maps' : 'Abrir Google Maps'}</a></div><iframe title={en ? 'Map of Plaza Colón in Córdoba, Argentina' : 'Mapa de Plaza Colón en Córdoba, Argentina'} src="https://www.google.com/maps?q=Plaza+Col%C3%B3n+C%C3%B3rdoba+Argentina&output=embed" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></section>
     <section id="faq" class="section-wrap"><h2>{t.faqTitle}</h2><div class="faq-list">{t.faq.map(([question,answer]) => <details><summary>{question}</summary><p>{answer}</p></details>)}</div></section>
     <section id="sources" class="section-wrap"><h2>{t.sourceTitle}</h2><p>{t.sourceText}</p><ul><li><a href={source}>{en ? 'Córdoba municipal tourism: Plaza Colón' : 'Turismo municipal de Córdoba: Plaza Colón'}</a></li><li><a href="https://turismo.cordoba.gob.ar/tres-plazas-de-tradicionales-barrios-de-cordoba-con-mucha-historia/">{en ? 'Municipal account of three neighbourhood squares' : 'Relato municipal sobre tres plazas barriales'}</a></li><li><a href="https://maps.app.goo.gl/VFVHXX42gPEcgbg76">Google Maps · 22/10/2026 · {en ? 'third-party rating snapshot' : 'referencia de valoración externa'}</a></li></ul></section>
